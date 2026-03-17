@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="GrantSignal delivers weekly curated federal grant alerts for small nonprofits and schools — fit scores, urgency flags, and direct links. Free to subscribe.">
+  <meta property="og:title" content="GrantSignal — Federal Grant Alerts for Nonprofits">
+  <meta property="og:description" content="Weekly digests of new federal grants, AI curation, fit scores, and urgency flags. Subscribe free.">
+  <meta property="og:url" content="https://grantsignal.news">
+  <meta property="og:type" content="website">
+  <title>GrantSignal — Federal Grant Alerts for Small Nonprofits & Schools</title>
+  <style>
+    :root {
+      --navy:#0f3460;--blue:#1565c0;--blue-light:#4fc3f7;--teal:#00897b;--teal-light:#4db6ac;
+      --bg:#ffffff;--bg-alt:#f4f7fb;--text:#1a1a2e;--text-muted:#5a6a7a;--border:#dde4ed;
+      --radius:10px;--shadow:0 4px 24px rgba(15,52,96,0.10);
+    }
+    @media(prefers-color-scheme:dark){:root{--bg:#0d1b2a;--bg-alt:#13243a;--text:#e8f0fe;--text-muted:#8aacc8;--border:#1e3a5f;--shadow:0 4px 24px rgba(0,0,0,0.40);}}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px;}
+    a{color:var(--blue);text-decoration:none;}a:hover{text-decoration:underline;}
+    .container{max-width:900px;margin:0 auto;padding:0 24px;}
+    nav{background:var(--navy);padding:0 24px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.20);}
+    .nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px;}
+    .nav-logo{font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;}
+    .nav-logo .signal{color:var(--blue-light);}
+    .nav-links{display:flex;gap:24px;list-style:none;}
+    .nav-links a{color:#b0c4de;font-size:14px;font-weight:500;}
+    .nav-links a:hover{color:#fff;text-decoration:none;}
+    .nav-cta{background:var(--teal);color:#fff!important;padding:7px 16px;border-radius:20px;font-weight:700!important;font-size:13px!important;}
+    .nav-cta:hover{background:var(--teal-light)!important;}
+    .hero{background:linear-gradient(150deg,var(--navy) 0%,#163d6e 60%,#1a4f6e 100%);padding:80px 24px 72px;text-align:center;position:relative;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 0%,rgba(79,195,247,0.12) 0%,transparent 70%);}
+    .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(79,195,247,0.15);border:1px solid rgba(79,195,247,0.30);color:var(--blue-light);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:22px;}
+    .hero h1{font-size:clamp(26px,5vw,44px);font-weight:800;color:#fff;line-height:1.2;max-width:700px;margin:0 auto 20px;letter-spacing:-0.5px;}
+    .hero h1 em{font-style:normal;color:var(--blue-light);}
+    .hero p{font-size:clamp(15px,2.5vw,18px);color:#b0cce4;max-width:560px;margin:0 auto 36px;line-height:1.6;}
+    .hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+    .btn-primary{display:inline-block;background:var(--teal);color:#fff;font-size:15px;font-weight:700;padding:14px 32px;border-radius:6px;box-shadow:0 4px 16px rgba(0,137,123,0.35);}
+    .btn-primary:hover{background:#00796b;text-decoration:none;}
+    .btn-secondary{display:inline-block;background:transparent;color:#b0cce4;font-size:15px;font-weight:600;padding:14px 28px;border-radius:6px;border:1.5px solid rgba(176,204,228,0.35);}.btn-secondary:hover{border-color:#b0cce4;color:#fff;text-decoration:none;}
+    .hero-proof{margin-top:40px;font-size:12px;color:rgba(176,204,228,0.65);letter-spacing:0.5px;}
+    .stats{background:var(--bg-alt);border-bottom:1px solid var(--border);padding:20px 24px;}
+    .stats-inner{max-width:900px;margin:0 auto;display:flex;justify-content:center;gap:48px;flex-wrap:wrap;}
+    .stat-item{text-align:center;}
+    .stat-num{font-size:26px;font-weight:800;color:var(--blue);line-height:1;}
+    .stat-label{font-size:12px;color:var(--text-muted);margin-top:3px;text-transform:uppercase;letter-spacing:0.5px;}
+    section{padding:72px 24px;}
+    .section-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:10px;}
+    .section-title{font-size:clamp(22px,4vw,32px);font-weight:800;color:var(--text);line-height:1.25;margin-bottom:14px;}
+    .section-sub{font-size:16px;color:var(--text-muted);max-width:560px;margin-bottom:44px;}
+    .how{background:var(--bg);}
+    .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:28px;margin-top:44px;}
+    .step{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;}
+    .step-num{width:36px;height:36px;background:var(--navy);color:var(--blue-light);font-size:14px;font-weight:800;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+    .step h3{font-size:15px;font-weight:700;margin-bottom:8px;}
+    .step p{font-size:14px;color:var(--text-muted);line-height:1.6;}
+    .features{background:var(--bg-alt);}
+    .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+    .feature{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:24px;display:flex;gap:16px;align-items:flex-start;box-shadow:var(--shadow);}
+    .feature-icon{font-size:24px;flex-shrink:0;margin-top:2px;}
+    .feature-text h3{font-size:15px;font-weight:700;margin-bottom:5px;}
+    .feature-text p{font-size:13px;color:var(--text-muted);line-height:1.5;}
+    .preview{background:var(--bg);}
+    .digest-card{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-width:600px;margin:0 auto;box-shadow:var(--shadow);}
+    .digest-header{background:var(--navy);padding:16px 20px;display:flex;align-items:center;gap:12px;}
+    .digest-header-logo{font-size:16px;font-weight:800;color:#fff;}
+    .digest-header-logo span{color:var(--blue-light);}
+    .digest-header-meta{font-size:11px;color:#90a8c0;margin-left:auto;}
+    .digest-body{padding:20px;}
+    .digest-section-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#888;border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:14px;}
+    .digest-grant{border-left:3px solid var(--blue);padding:10px 14px;margin-bottom:12px;background:var(--bg);border-radius:0 6px 6px 0;}
+    .digest-grant-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+    .digest-grant-meta{font-size:11px;color:var(--text-muted);}
+    .digest-grant-stars{color:#f4a800;}
+    .digest-urgent{background:#fff3f3;border:1px solid #ffd0d0;border-radius:6px;padding:10px 14px;font-size:12px;color:#b71c1c;margin-top:14px;}
+    .digest-footer-note{font-size:11px;color:var(--text-muted);text-align:center;padding:12px;border-top:1px solid var(--border);}
+    .subscribe-section{background:linear-gradient(135deg,var(--navy) 0%,#163d6e 100%);padding:80px 24px;text-align:center;}
+    .subscribe-section .section-label{color:var(--teal-light);}
+    .subscribe-section .section-title{color:#fff;margin-bottom:10px;}
+    .subscribe-section .section-sub{color:#90b8d8;margin:0 auto 36px;}
+    .subscribe-box{max-width:480px;margin:0 auto;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:28px;}.subscribe-box iframe{width:100%!important;border:none!important;min-height:120px;}
+    .subscribe-note{font-size:12px;color:#7fa8c8;margin-top:14px;}
+    .pricing{background:var(--bg-alt);}
+    .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;max-width:760px;margin:0 auto;}
+    .pricing-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;box-shadow:var(--shadow);position:relative;}
+    .pricing-card.featured{border-color:var(--blue);border-width:2px;}
+    .pricing-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:20px;white-space:nowrap;}
+    .pricing-tier{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:8px;}
+    .pricing-price{font-size:32px;font-weight:800;color:var(--text);line-height:1;}
+    .pricing-price span{font-size:14px;font-weight:400;color:var(--text-muted);}
+    .pricing-annual{font-size:12px;color:var(--teal);margin:4px 0 16px;}
+    .pricing-divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+    .pricing-features{list-style:none;}
+    .pricing-features li{font-size:13px;color:var(--text-muted);padding:5px 0;display:flex;gap:8px;align-items:flex-start;}
+    .pricing-features li::before{content:"✓";color:var(--teal);font-weight:700;flex-shrink:0;}
+    .pricing-cta{display:block;text-align:center;margin-top:22px;padding:11px;border-radius:6px;font-size:14px;font-weight:700;}
+    .pricing-cta.outline{border:1.5px solid var(--border);color:var(--text-muted);}
+    .pricing-cta.outline:hover{border-color:var(--blue);color:var(--blue);text-decoration:none;}
+    .pricing-cta.solid{background:var(--blue);color:#fff;}
+    .pricing-cta.solid:hover{background:#0d47a1;text-decoration:none;}
+    footer{background:var(--navy);padding:48px 24px 32px;color:#90a8c0;font-size:13px;}
+    .footer-inner{max-width:900px;margin:0 auto;}
+    .footer-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:32px;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:24px;}
+    .footer-brand-name{font-size:18px;font-weight:800;color:#fff;margin-bottom:6px;}
+    .footer-brand-name span{color:var(--blue-light);}
+    .footer-tagline{font-size:12px;color:#607d96;}
+    .footer-links-group h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#607d96;margin-bottom:10px;}
+    .footer-links-group ul{list-style:none;}
+    .footer-links-group li{margin-bottom:7px;}
+    .footer-links-group a{color:#90a8c0;font-size:13px;}
+    .footer-links-group a:hover{color:#fff;text-decoration:none;}
+    .footer-bottom{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;}
+    .footer-address{font-size:11px;color:#4a6278;line-height:1.7;}
+    .footer-copy{font-size:11px;color:#4a6278;}
+    @media(max-width:600px){.nav-links{display:none;}.stats-inner{gap:28px;}.hero{padding:60px 20px 56px;}section{padding:52px 20px;}.subscribe-section{padding:60px 20px;}.footer-top{flex-direction:column;}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">📡 Grant<span class="signal">Signal</span></div>
+    <ul class="nav-links">
+      <li><a href="#how-it-works">How it works</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="https://grantsignal.beehiiv.com/archive" target="_blank">Past Digests</a></li>
+      <li><a href="#subscribe" class="nav-cta">Subscribe Free →</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">📡 Federal Grant Intelligence</div>
+    <h1>Curated Federal Grant Alerts for <em>Small Nonprofits & Schools</em></h1><p>Weekly digests of new federal grants — AI-curated, fit-scored, and urgency-flagged. Find the funding you qualify for before the deadline passes.</p>
+    <div class="hero-actions">
+      <a href="#subscribe" class="btn-primary">Subscribe Free — No Credit Card</a>
+      <a href="https://grantsignal.beehiiv.com/archive" target="_blank" class="btn-secondary">See a Sample Digest →</a>
+    </div>
+    <p class="hero-proof">✓ Free forever tier &nbsp;·&nbsp; ✓ Unsubscribe anytime &nbsp;·&nbsp; ✓ No spam, ever</p>
+  </div>
+</section>
+
+<div class="stats">
+  <div class="stats-inner">
+    <div class="stat-item"><div class="stat-num">576+</div><div class="stat-label">Grants Monitored</div></div>
+    <div class="stat-item"><div class="stat-num">Weekly</div><div class="stat-label">Digest Cadence</div></div>
+    <div class="stat-item"><div class="stat-num">6hr</div><div class="stat-label">Monitoring Interval</div></div>
+    <div class="stat-item"><div class="stat-num">$800B+</div><div class="stat-label">Annual Federal Grants</div></div>
+  </div>
+</div>
+
+<section class="how" id="how-it-works">
+  <div class="container">
+    <div class="section-label">How it works</div>
+    <h2 class="section-title">Stop searching. Start applying.</h2>
+    <p class="section-sub">GrantSignal watches the entire federal grants database so you don't have to.</p>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><h3>We monitor 24/7</h3><p>Our system checks Grants.gov every 6 hours for newly posted nonprofit-eligible federal grants.</p></div>
+      <div class="step"><div class="step-num">2</div><h3>AI curates &amp; scores</h3><p>Each grant is summarized, classified by mission area, and given a fit score (1–5) matched to your nonprofit's profile.</p></div>
+      <div class="step"><div class="step-num">3</div><h3>You get the signal</h3><p>Every Tuesday morning: a clean digest with top picks, urgency flags, and direct links to apply — no login required.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-label">What you get</div>
+    <h2 class="section-title">Everything a small nonprofit needs to find funding</h2>
+    <div class="features-grid">
+      <div class="feature"><div class="feature-icon">📬</div><div class="feature-text"><h3>Weekly Grant Digest</h3><p>Fresh federal opportunities every Tuesday morning, matched to nonprofits like yours. Never miss an open window again.</p></div></div>
+      <div class="feature"><div class="feature-icon">⭐</div><div class="feature-text"><h3>AI Fit Scores (1–5)</h3><p>Each grant is scored for relevance to your mission area, org size, and geography. Focus on what fits, skip what doesn't.</p></div></div>
+      <div class="feature"><div class="feature-icon">⚡</div><div class="feature-text"><h3>Urgent Deadline Alerts</h3><p>Grants closing within 14 days are flagged in red. No more discovering a perfect grant the day after it closed.</p></div></div>
+      <div class="feature"><div class="feature-icon">🔗</div><div class="feature-text"><h3>Direct Links to Apply</h3><p>Every listing links straight to Grants.gov. No extra steps, no paywalls, no middlemen between you andyour funding.</p></div></div>
+      <div class="feature"><div class="feature-icon">🏛</div><div class="feature-text"><h3>Official Federal Sources Only</h3><p>All data comes directly from Grants.gov — the authoritative U.S. federal grants database. Accurate and up-to-date.</p></div></div>
+      <div class="feature"><div class="feature-icon">✌️</div><div class="feature-text"><h3>Easy Unsubscribe, Always</h3><p>One-click unsubscribe in every email. No dark patterns, no re-confirmation loops. We're here to help, not harass.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="preview">
+  <div class="container" style="text-align:center">
+    <div class="section-label">Sample digest</div><h2 class="section-title">What lands in your inbox every Tuesday</h2>
+    <p class="section-sub" style="margin:0 auto 36px">Real grants, real deadlines, real links.</p>
+    <div class="digest-card">
+      <div class="digest-header">
+        <div class="digest-header-logo">📡 Grant<span>Signal</span></div>
+        <div class="digest-header-meta">Week of Mar 13, 2026 &nbsp;·&nbsp; 50 grants matched</div>
+      </div>
+      <div class="digest-body">
+        <div class="digest-section-label">⭐ Top Picks — Highest Fit This Week</div>
+        <div class="digest-grant"><div class="digest-grant-title">Ambassador's Fund for Cultural Preservation (AFCP 2026)</div><div class="digest-grant-meta">🏛 Bureau of Educational &amp; Cultural Affairs &nbsp;·&nbsp; Closes Apr 3 &nbsp;·&nbsp; <span class="digest-grant-stars">★★★★★</span></div></div>
+        <div class="digest-grant"><div class="digest-grant-title">Drug-Free Communities Support Program — New Coalitions</div><div class="digest-grant-meta">🏛 Centers for Disease Control &nbsp;·&nbsp; Closes Apr 14 &nbsp;·&nbsp; <span class="digest-grant-stars">★★★★★</span></div></div>
+        <div class="digest-grant"><div class="digest-grant-title">WaterSMART: Large-Scale Water Recycling Projects</div><div class="digest-grant-meta">🏛 Bureau of Reclamation &nbsp;·&nbsp; Closes May 13 &nbsp;·&nbsp; <span class="digest-grant-stars">★★★★☆</span></div></div>
+        <div class="digest-urgent">⚡ <strong>2 urgent deadlines this week</strong> — closing within 14 days</div>
+      </div>
+      <div class="digest-footer-note"><a href="https://grantsignal.beehiiv.com/archive" target="_blank">View full digest archive →</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="subscribe-section" id="subscribe">
+  <div class="container">
+    <div class="section-label">Free to join</div>
+    <h2 class="section-title">Start receiving grant alerts this Tuesday</h2>
+    <p class="section-sub">Join nonprofit leaders and grant writers who use GrantSignal to stay ahead of federal funding opportunities.</p>
+    <div class="subscribe-box">
+      <iframe src="https://embeds.beehiiv.com/49dc1756-1fe6-4f33-b6f4-f6e01e4e7b72?slim=true"
+              data-test-id="beehiiv-embed"
+              height="52"
+              frameborder="0"
+              scrolling="no"
+              style="width:100%;border-radius:6px;overflow:hidden">
+      </iframe>
+      <noscript><a href="https://grantsignal.beehiiv.com/subscribe" class="btn-primary" style="display:block;text-align:center;margin-top:10px">Subscribe at grantsignal.beehiiv.com →</a></noscript>
+      <p class="subscribe-note">✓ Free forever &nbsp;·&nbsp; ✓ Unsubscribe anytime &nbsp;·&nbsp; ✓ No spam</p>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-label" style="text-align:center">Pricing</div>
+    <h2 class="section-title" style="text-align:center">Simple, honest pricing</h2>
+    <p class="section-sub" style="text-align:center;margin:0 auto 44px">Start free. Upgrade when the grants pay for it.</p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-tier">Free</div>
+        <div class="pricing-price">$0<span>/month</span></div>
+        <div class="pricing-annual">&nbsp;</div>
+        <hr class="pricing-divider">      <ul class="pricing-features">
+          <li>Top 3 grant matches weekly</li>
+          <li>Urgent deadline alerts</li>
+          <li>Direct links to Grants.gov</li>
+          <li>Unsubscribe anytime</li>
+        </ul>
+        <a href="https://grantsignal.beehiiv.com/subscribe" class="pricing-cta outline">Subscribe Free →</a>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-badge">Most Popular</div>
+        <div class="pricing-tier">Basic</div>
+        <div class="pricing-price">$29<span>/month</span></div>
+        <div class="pricing-annual">or $290/year — save $58</div>
+        <hr class="pricing-divider"><ul class="pricing-features">
+          <li>Full weekly digest (all matches)</li>
+          <li>AI fit scores (1–5 stars)</li>
+          <li>Mission area personalization</li>
+          <li>Urgent deadline alerts</li>
+          <li>Priority email support</li>
+        </ul>
+        <a href="https://grantsignal.beehiiv.com/upgrade" class="pricing-cta solid">Get Basic →</a>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-tier">Premium</div>
+        <div class="pricing-price">$49<span>/month</span></div>
+        <div class="pricing-annual">or $490/year — save $98</div>
+        <hr class="pricing-divider">
+        <ul class="pricing-features">
+          <li>Everything in Basic</li>
+          <li>Geography + budget filtering</li>
+          <li>Deadline reminder alerts</li>
+          <li>Up to 3 team seats</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="https://grantsignal.beehiiv.com/upgrade" class="pricing-cta outline">Get Premium →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand-name">📡 Grant<span>Signal</span></div>
+        <div class="footer-tagline">Federal Grant Discovery for Nonprofits &amp; Schools</div>
+      </div>
+      <div class="footer-links-group">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="https://grantsignal.beehiiv.com/archive" target="_blank">Past Digests</a></li>
+          <li><a href="https://grantsignal.beehiiv.com/subscribe" target="_blank">Subscribe</a></li>
+        </ul>
+      </div>
+      <div class="footer-links-group">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="/privacy">Privacy Policy</a></li>
+          <li><a href="/terms">Terms of Service</a></li>
+          <li><a href="mailto:southerneatsai@gmail.com">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-links-group">
+        <h4>Data</h4>
+        <ul>
+          <li><a href="https://www.grants.gov" target="_blank">Grants.gov</a></li>
+          <li><a href="https://grantsignal.beehiiv.com/archive" target="_blank">Digest Archive</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-address">
+        GrantSignal &nbsp;·&nbsp; 1401 Westbank Expressway, Suite 109, Westwego, LA 70094<br>
+        GrantSignal curates publicly available federal grant data from Grants.gov.<br>
+        Not affiliated with any U.S. federal agency. Not legal or financial advice.
+      </div>
+      <div class="footer-copy">© 2026 GrantSignal. All rights reserved.</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
