@@ -1,1 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Set up your GrantSignal profile to receive personalized federal grant matches for your nonprofit.">
+  <title>My Grant Profile — GrantSignal</title>
+  <style>
+    :root {
+      --navy:#0f3460;--blue:#1565c0;--blue-light:#4fc3f7;--teal:#00897b;--teal-light:#4db6ac;
+      --bg:#ffffff;--bg-alt:#f4f7fb;--text:#1a1a2e;--text-muted:#5a6a7a;--border:#dde4ed;
+      --radius:10px;--shadow:0 4px 24px rgba(15,52,96,0.10);--red:#c62828;
+    }
+    @media(prefers-color-scheme:dark){:root{--bg:#0d1b2a;--bg-alt:#13243a;--text:#e8f0fe;--text-muted:#8aacc8;--border:#1e3a5f;}}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg-alt);color:var(--text);line-height:1.7;font-size:16px;min-height:100vh;}
+    a{color:var(--blue);text-decoration:none;}a:hover{text-decoration:underline;}
+    nav{background:var(--navy);padding:0 24px;}
+    .nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px;}
+    .nav-logo{font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.5px;}
+    .nav-logo span{color:var(--blue-light);}
+    .nav-back{color:#b0c4de;font-size:14px;}
+    .nav-back:hover{color:#fff;text-decoration:none;}
+    .page-wrap{max-width:600px;margin:48px auto;padding:0 20px 60px;}
+    .page-header{text-align:center;margin-bottom:36px;}
+    .page-icon{font-size:40px;margin-bottom:12px;}
+    .page-title{font-size:28px;font-weight:800;color:var(--text);margin-bottom:8px;}
+    .page-sub{font-size:15px;color:var(--text-muted);max-width:440px;margin:0 auto;}
+    .form-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow);}
+    .form-section{margin-bottom:28px;}
+    .form-section-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+    .field{margin-bottom:20px;}
+    .field label{display:block;font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;}
+    .field .hint{font-size:12px;color:var(--text-muted);margin-bottom:8px;}
+    .field input[type="text"],.field input[type="email"]{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:6px;font-size:15px;color:var(--text);background:var(--bg);outline:none;transition:border-color 0.2s;}
+    .field input:focus{border-color:var(--blue);}
+    .field select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:6px;font-size:15px;color:var(--text);background:var(--bg);outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%235a6a7a' d='M6 8L0 0h12z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;cursor:pointer;}
+    .field select:focus{border-color:var(--blue);}
+    .checkbox-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .checkbox-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;transition:border-color 0.15s,background 0.15s;}
+    .checkbox-item:hover{border-color:var(--blue);background:rgba(21,101,192,0.04);}
+    .checkbox-item input[type="checkbox"]{width:16px;height:16px;accent-color:var(--teal);cursor:pointer;flex-shrink:0;}
+    .checkbox-item.checked{border-color:var(--teal);background:rgba(0,137,123,0.06);}
+    .checkbox-label{font-size:13px;font-weight:500;color:var(--text);line-height:1.3;}
+    .checkbox-icon{font-size:18px;flex-shrink:0;}
+    .radio-group{display:flex;flex-direction:column;gap:10px;}
+    .radio-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;transition:border-color 0.15s,background 0.15s;}
+    .radio-item:hover{border-color:var(--blue);background:rgba(21,101,192,0.04);}
+    .radio-item input[type="radio"]{width:16px;height:16px;accent-color:var(--teal);cursor:pointer;flex-shrink:0;}
+    .radio-item.selected{border-color:var(--teal);background:rgba(0,137,123,0.06);}
+    .radio-label{font-size:14px;font-weight:500;color:var(--text);}
+    .radio-sub{font-size:12px;color:var(--text-muted);}
+    .geo-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+    .geo-tag{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:13px;cursor:pointer;transition:all 0.15s;background:var(--bg);}
+    .geo-tag:hover{border-color:var(--blue);}
+    .geo-tag.selected{border-color:var(--teal);background:rgba(0,137,123,0.08);color:var(--teal);font-weight:600;}
+    .geo-tag input{display:none;}
+    .email-field{background:rgba(21,101,192,0.04);border:1.5px solid rgba(21,101,192,0.20);border-radius:8px;padding:16px;}
+    .email-field label{color:var(--blue);font-weight:700;}
+    .submit-btn{width:100%;padding:15px;background:var(--teal);color:#fff;border:none;border-radius:6px;font-size:16px;font-weight:700;cursor:pointer;transition:background 0.2s;margin-top:8px;box-shadow:0 4px 16px rgba(0,137,123,0.30);}
+    .submit-btn:hover{background:#00796b;}
+    .privacy-note{font-size:11px;color:var(--text-muted);text-align:center;margin-top:14px;line-height:1.6;}
+    .privacy-note a{color:var(--text-muted);text-decoration:underline;}
+    .success-card{display:none;background:var(--bg);border:2px solid var(--teal);border-radius:var(--radius);padding:40px 32px;text-align:center;box-shadow:var(--shadow);}
+    .success-card.visible{display:block;}
+    .success-icon{font-size:52px;margin-bottom:16px;}
+    .success-title{font-size:22px;font-weight:800;color:var(--text);margin-bottom:10px;}
+    .success-sub{font-size:15px;color:var(--text-muted);margin-bottom:24px;}
+    .success-next{display:inline-block;background:var(--navy);color:#fff;padding:12px 28px;border-radius:6px;font-size:14px;font-weight:700;}
+    .success-next:hover{background:var(--blue);text-decoration:none;}
+    .error-msg{background:#fff3f3;border:1px solid #ffd0d0;color:var(--red);border-radius:6px;padding:12px 16px;font-size:13px;margin-bottom:16px;display:none;}
+    .error-msg.visible{display:block;}
+    @media(max-width:500px){.checkbox-grid{grid-template-columns:1fr;}.page-wrap{margin:24px auto;}}
+  </style>
+</head>
+<body>
 
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">📡 Grant<span>Signal</span></div>
+    <a href="/" class="nav-back">← Back to home</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <div class="page-icon">🎯</div>
+    <h1 class="page-title">Your Grant Profile</h1>
+    <p class="page-sub">Tell us about your organization and we'll match every digest to your exact mission, size, and location.</p>
+  </div>
+
+  <div class="success-card" id="successCard">
+    <div class="success-icon">✅</div>
+    <h2 class="success-title">Profile saved!</h2>
+    <p class="success-sub">Your next digest will be personalized for your organization. Expect it this Tuesday at 7 AM CT.</p>
+    <a href="/" class="success-next">Back to GrantSignal →</a>
+  </div>
+
+  <div class="form-card" id="formCard">
+    <div class="error-msg" id="errorMsg">Something went wrong. Please try again or email us at southerneatsai@gmail.com.</div>
+
+    <form id="profileForm" action="https://formspree.io/f/YOUR_FORMSPREE_ID" method="POST">
+      <input type="hidden" name="_subject" value="New GrantSignal Profile Submission">
+
+      <div class="form-section">
+        <div class="form-section-label">📧 Your Contact Info</div>
+        <div class="field">
+          <label for="orgName">Organization name</label><input type="text" id="orgName" name="organization_name" placeholder="e.g. Westbank Community Foundation" required>
+        </div>
+        <div class="field email-field">
+          <label for="email">Email address</label>
+          <div class="hint">This must match the email you subscribed with.</div>
+          <input type="email" id="email" name="email" placeholder="you@yournonprofit.org" required>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-label">🎯 Mission Area</div>
+        <div class="field">
+          <label>What best describes your primary mission? <span style="color:var(--red)">*</span></label>
+          <div class="hint">Select all that apply — we'll prioritize grants that match.</div>
+          <div class="checkbox-grid" id="missionGrid">
+            <label class="checkbox-item" onclick="toggleCheck(this)"><span class="checkbox-icon">📚</span><input type="checkbox" name="mission[]" value="youth_education"><span class="checkbox-label">Youth & Education</span></label>
+            <label class="checkbox-item" onclick="toggleCheck(this)"><span class="checkbox-icon">🏥</span><input type="checkbox" name="mission[]" value="health"><span class="checkbox-label">Health & Wellness</span></label>
+            <label class="checkbox-item" onclick="toggleCheck(this)"><span class="checkbox-icon">🌿</span><input type="checkbox" name="mission[]" value="environment"><span class="checkbox-label">Environment & Conservation</span></label>
+            <label class="checkbox-item" onclick="toggleCheck(this)"><span class="checkbox-icon">🎭</span><input type="checkbox" name="mission[]" value="arts_culture"><span class="checkbox-label">Arts & Culture</span></label>
+            <label class="checkbox-item" onclick="toggleCheck(this)"><span class="checkbox-icon">🏘️</span><input type="checkbox" name="mission[]" value="community"><span class="checkbox-label">Community Development</span></label>
+            <label class="checkbox-item" onclick="toggleCheck(this)"><span class="checkbox-icon">⚖️</span><input type="checkbox" name="mission[]" value="justice"><span class="checkbox-label">Justice & Civil Rights</span></label>
+            <label class="checkbox-item" onclick="toggleCheck(this)"><span class="checkbox-icon">🍎</span><input type="checkbox" name="mission[]" value="food_hunger"><span class="checkbox-label">Food & Hunger Relief</span></label>
+            <label class="checkbox-item" onclick="toggleCheck(this)"><span class="checkbox-icon">🔬</span><input type="checkbox" name="mission[]" value="research"><span class="checkbox-label">Research & STEM</span></label>
+            <label class="checkbox-item" onclick="toggleCheck(this)"><span class="checkbox-icon">🌍</span><input type="checkbox" name="mission[]" value="international"><span class="checkbox-label">International Programs</span></label>
+            <label class="checkbox-item" onclick="toggleCheck(this)"><span class="checkbox-icon">🏫</span><input type="checkbox" name="mission[]" value="schools"><span class="checkbox-label">K–12 Schools</span></label>
+            <label class="checkbox-item" onclick="toggleCheck(this)"><span class="checkbox-icon">🎖️</span><input type="checkbox" name="mission[]" value="veterans"><span class="checkbox-label">Veterans & Military</span></label>
+            <label class="checkbox-item" onclick="toggleCheck(this)"><span class="checkbox-icon">✨</span><input type="checkbox" name="mission[]" value="other"><span class="checkbox-label">Other / General</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-label">📊 Organization Size</div>
+        <div class="field">
+          <label>Annual operating budget <span style="color:var(--red)">*</span></label>
+          <div class="hint">Helps us filter grants by award size and eligibility thresholds.</div>
+          <div class="radio-group" id="budgetGroup">
+            <label class="radio-item" onclick="selectRadio(this, 'budgetGroup')"><input type="radio" name="budget_range" value="under_100k" required><div><div class="radio-label">Under $100K</div><div class="radio-sub">Grassroots / early-stage organization</div></div></label>
+            <label class="radio-item" onclick="selectRadio(this, 'budgetGroup')"><input type="radio" name="budget_range" value="100k_500k"><div><div class="radio-label">$100K – $500K</div><div class="radio-sub">Small established nonprofit</div></div></label>
+            <label class="radio-item" onclick="selectRadio(this, 'budgetGroup')"><input type="radio" name="budget_range" value="500k_2m"><div><div class="radio-label">$500K – $2M</div><div class="radio-sub">Mid-size nonprofit</div></div></label>
+            <label class="radio-item" onclick="selectRadio(this, 'budgetGroup')"><input type="radio" name="budget_range" value="over_2m"><div><div class="radio-label">Over $2M</div><div class="radio-sub">Large nonprofit or institution</div></div></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-label">📍 Geography</div>
+        <div class="field">
+          <label>Where does your organization operate? <span style="color:var(--red)">*</span></label>
+          <div class="hint">Select all that apply — national grants always included.</div>
+          <div class="geo-wrap" id="geoWrap">
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="national">🇺🇸 National</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="AL">AL</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="AK">AK</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="AZ">AZ</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="AR">AR</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="CA">CA</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="CO">CO</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="CT">CT</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="DE">DE</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="FL">FL</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="GA">GA</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="HI">HI</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="ID">ID</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="IL">IL</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="IN">IN</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="IA">IA</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="KS">KS</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="KY">KY</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="LA">LA</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="ME">ME</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="MD">MD</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="MA">MA</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="MI">MI</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="MN">MN</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="MS">MS</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="MO">MO</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="MT">MT</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="NE">NE</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="NV">NV</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="NH">NH</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="NJ">NJ</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="NM">NM</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="NY">NY</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="NC">NC</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="ND">ND</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="OH">OH</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="OK">OK</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="OR">OR</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="PA">PA</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="RI">RI</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="SC">SC</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="SD">SD</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="TN">TN</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="TX">TX</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="UT">UT</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="VT">VT</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="VA">VA</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="WA">WA</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="WV">WV</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="WI">WI</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="WY">WY</label>
+            <label class="geo-tag" onclick="toggleGeo(this)"><input type="checkbox" name="geography[]" value="DC">DC</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-label">⚙️ Digest Preferences</div>
+        <div class="field">
+          <label for="digestFreq">Digest frequency</label>
+          <select id="digestFreq" name="digest_frequency">
+            <option value="weekly">Weekly (every Tuesday) — recommended</option>
+            <option value="urgent_only">Urgent alerts only (deadlines ≤7 days)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="minFitScore">Minimum fit score to include</label>
+          <div class="hint">Only show grants at or above this score.</div>
+          <select id="minFitScore" name="min_fit_score">
+            <option value="3">3+ stars — broader coverage (recommended)</option>
+            <option value="4">4+ stars — higher relevance only</option>
+            <option value="5">5 stars only — perfect matches</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">Save My Profile &amp; Personalize Digests →</button>
+      <p class="privacy-note">Your information is used only to personalize your GrantSignal digest. We never sell or share your data. <a href="/privacy">Privacy Policy</a></p>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleCheck(el){setTimeout(()=>{const cb=el.querySelector('input[type="checkbox"]');el.classList.toggle('checked',cb.checked);},0);}
+  function selectRadio(el,groupId){document.querySelectorAll(`#${groupId} .radio-item`).forEach(i=>i.classList.remove('selected'));setTimeout(()=>{el.classList.add('selected');},0);}
+  function toggleGeo(el){setTimeout(()=>{const cb=el.querySelector('input[type="checkbox"]');el.classList.toggle('selected',cb.checked);},0);}
+  if(window.location.search.includes('success=true')){document.getElementById('formCard').style.display='none';document.getElementById('successCard').classList.add('visible');}
+  const form=document.getElementById('profileForm');
+  form.addEventListener('submit',async function(e){
+    e.preventDefault();
+    const btn=document.getElementById('submitBtn');
+    const err=document.getElementById('errorMsg');
+    btn.textContent='Saving…';btn.disabled=true;err.classList.remove('visible');
+    try{
+      const res=await fetch(form.action,{method:'POST',body:new FormData(form),headers:{'Accept':'application/json'}});
+      if(res.ok){document.getElementById('formCard').style.display='none';document.getElementById('successCard').classList.add('visible');window.scrollTo({top:0,behavior:'smooth'});}
+      else{throw new Error('Server error');}
+    }catch{err.classList.add('visible');btn.textContent='Save My Profile & Personalize Digests →';btn.disabled=false;}
+  });
+</script>
+</body>
+</html>
