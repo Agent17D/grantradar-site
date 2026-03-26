@@ -26,7 +26,7 @@
     .nav-logo{font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;}
     .nav-logo .signal{color:var(--blue-light);}
     .nav-links{display:flex;gap:24px;list-style:none;}
-    .nav-links a{color:#b0c4de;font-size:14px;font-weight:500;}
+    .nav-links a{color:#b0c4de;font-size:14px;font-weight:500;transition:color 0.2s;}
     .nav-links a:hover{color:#fff;text-decoration:none;}
     .nav-cta{background:var(--teal);color:#fff!important;padding:7px 16px;border-radius:20px;font-weight:700!important;font-size:13px!important;}
     .nav-cta:hover{background:var(--teal-light)!important;}
@@ -37,9 +37,8 @@
     .hero h1 em{font-style:normal;color:var(--blue-light);}
     .hero p{font-size:clamp(15px,2.5vw,18px);color:#b0cce4;max-width:560px;margin:0 auto 36px;line-height:1.6;}
     .hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
-    .btn-primary{display:inline-block;background:var(--teal);color:#fff;font-size:15px;font-weight:700;padding:14px 32px;border-radius:6px;box-shadow:0 4px 16px rgba(0,137,123,0.35);}
-    .btn-primary:hover{background:#00796b;text-decoration:none;}
-    .btn-secondary{display:inline-block;background:transparent;color:#b0cce4;font-size:15px;font-weight:600;padding:14px 28px;border-radius:6px;border:1.5px solid rgba(176,204,228,0.35);}.btn-secondary:hover{border-color:#b0cce4;color:#fff;text-decoration:none;}
+    .btn-primary{display:inline-block;background:var(--teal);color:#fff;font-size:15px;font-weight:700;padding:14px 32px;border-radius:6px;transition:background 0.2s,transform 0.1s;box-shadow:0 4px 16px rgba(0,137,123,0.35);}
+    .btn-primary:hover{background:#00796b;transform:translateY(-1px);text-decoration:none;}    .btn-secondary{display:inline-block;background:transparent;color:#b0cce4;font-size:15px;font-weight:600;padding:14px 28px;border-radius:6px;border:1.5px solid rgba(176,204,228,0.35);transition:border-color 0.2s,color 0.2s;}.btn-secondary:hover{border-color:#b0cce4;color:#fff;text-decoration:none;}
     .hero-proof{margin-top:40px;font-size:12px;color:rgba(176,204,228,0.65);letter-spacing:0.5px;}
     .stats{background:var(--bg-alt);border-bottom:1px solid var(--border);padding:20px 24px;}
     .stats-inner{max-width:900px;margin:0 auto;display:flex;justify-content:center;gap:48px;flex-wrap:wrap;}
@@ -52,7 +51,7 @@
     .section-sub{font-size:16px;color:var(--text-muted);max-width:560px;margin-bottom:44px;}
     .how{background:var(--bg);}
     .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:28px;margin-top:44px;}
-    .step{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;}
+    .step{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;position:relative;}
     .step-num{width:36px;height:36px;background:var(--navy);color:var(--blue-light);font-size:14px;font-weight:800;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
     .step h3{font-size:15px;font-weight:700;margin-bottom:8px;}
     .step p{font-size:14px;color:var(--text-muted);line-height:1.6;}
@@ -80,8 +79,7 @@
     .subscribe-section .section-label{color:var(--teal-light);}
     .subscribe-section .section-title{color:#fff;margin-bottom:10px;}
     .subscribe-section .section-sub{color:#90b8d8;margin:0 auto 36px;}
-    .subscribe-box{max-width:480px;margin:0 auto;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:28px;}.subscribe-box iframe{width:100%!important;border:none!important;min-height:120px;}
-    .subscribe-note{font-size:12px;color:#7fa8c8;margin-top:14px;}
+    .subscribe-box{max-width:480px;margin:0 auto;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:28px;}.subscribe-note{font-size:12px;color:#7fa8c8;margin-top:14px;}
     .pricing{background:var(--bg-alt);}
     .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;max-width:760px;margin:0 auto;}
     .pricing-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;box-shadow:var(--shadow);position:relative;}
@@ -95,7 +93,7 @@
     .pricing-features{list-style:none;}
     .pricing-features li{font-size:13px;color:var(--text-muted);padding:5px 0;display:flex;gap:8px;align-items:flex-start;}
     .pricing-features li::before{content:"✓";color:var(--teal);font-weight:700;flex-shrink:0;}
-    .pricing-cta{display:block;text-align:center;margin-top:22px;padding:11px;border-radius:6px;font-size:14px;font-weight:700;}
+    .pricing-cta{display:block;text-align:center;margin-top:22px;padding:11px;border-radius:6px;font-size:14px;font-weight:700;transition:all 0.2s;}
     .pricing-cta.outline{border:1.5px solid var(--border);color:var(--text-muted);}
     .pricing-cta.outline:hover{border-color:var(--blue);color:var(--blue);text-decoration:none;}
     .pricing-cta.solid{background:var(--blue);color:#fff;}
@@ -127,17 +125,16 @@
       <li><a href="#features">Features</a></li>
       <li><a href="#pricing">Pricing</a></li>
       <li><a href="https://grantsignal.beehiiv.com/archive" target="_blank">Past Digests</a></li>
-      <li><a href="#subscribe" class="nav-cta">Subscribe Free →</a></li>
+      <li><a href="https://grantsignal.beehiiv.com/subscribe" target="_blank" class="nav-cta">Subscribe Free →</a></li>
     </ul>
   </div>
 </nav>
 
-<section class="hero">
-  <div class="container">
+<section class="hero">  <div class="container">
     <div class="hero-badge">📡 Federal Grant Intelligence</div>
     <h1>Curated Federal Grant Alerts for <em>Small Nonprofits & Schools</em></h1><p>Weekly digests of new federal grants — AI-curated, fit-scored, and urgency-flagged. Find the funding you qualify for before the deadline passes.</p>
     <div class="hero-actions">
-      <a href="#subscribe" class="btn-primary">Subscribe Free — No Credit Card</a>
+      <a href="https://grantsignal.beehiiv.com/subscribe" target="_blank" class="btn-primary">Subscribe Free — No Credit Card</a>
       <a href="https://grantsignal.beehiiv.com/archive" target="_blank" class="btn-secondary">See a Sample Digest →</a>
     </div>
     <p class="hero-proof">✓ Free forever tier &nbsp;·&nbsp; ✓ Unsubscribe anytime &nbsp;·&nbsp; ✓ No spam, ever</p>
@@ -173,8 +170,7 @@
     <div class="features-grid">
       <div class="feature"><div class="feature-icon">📬</div><div class="feature-text"><h3>Weekly Grant Digest</h3><p>Fresh federal opportunities every Tuesday morning, matched to nonprofits like yours. Never miss an open window again.</p></div></div>
       <div class="feature"><div class="feature-icon">⭐</div><div class="feature-text"><h3>AI Fit Scores (1–5)</h3><p>Each grant is scored for relevance to your mission area, org size, and geography. Focus on what fits, skip what doesn't.</p></div></div>
-      <div class="feature"><div class="feature-icon">⚡</div><div class="feature-text"><h3>Urgent Deadline Alerts</h3><p>Grants closing within 14 days are flagged in red. No more discovering a perfect grant the day after it closed.</p></div></div>
-      <div class="feature"><div class="feature-icon">🔗</div><div class="feature-text"><h3>Direct Links to Apply</h3><p>Every listing links straight to Grants.gov. No extra steps, no paywalls, no middlemen between you andyour funding.</p></div></div>
+      <div class="feature"><div class="feature-icon">⚡</div><div class="feature-text"><h3>Urgent Deadline Alerts</h3><p>Grants closing within 14 days are flagged in red. No more discovering a perfect grant the day after it closed.</p></div></div>      <div class="feature"><div class="feature-icon">🔗</div><div class="feature-text"><h3>Direct Links to Apply</h3><p>Every listing links straight to Grants.gov. No extra steps, no paywalls, no middlemen between you and your funding.</p></div></div>
       <div class="feature"><div class="feature-icon">🏛</div><div class="feature-text"><h3>Official Federal Sources Only</h3><p>All data comes directly from Grants.gov — the authoritative U.S. federal grants database. Accurate and up-to-date.</p></div></div>
       <div class="feature"><div class="feature-icon">✌️</div><div class="feature-text"><h3>Easy Unsubscribe, Always</h3><p>One-click unsubscribe in every email. No dark patterns, no re-confirmation loops. We're here to help, not harass.</p></div></div>
     </div>
@@ -208,13 +204,9 @@
     <h2 class="section-title">Start receiving grant alerts this Tuesday</h2>
     <p class="section-sub">Join nonprofit leaders and grant writers who use GrantSignal to stay ahead of federal funding opportunities.</p>
     <div class="subscribe-box">
-     <a href="https://grantsignal.beehiiv.com/subscribe"
-target="_blank"
-class="btn-primary"
-style="display:inline-block;font-size:16px;padding:16px 36px;">
-Subscribe Free — No Credit Card →
-</a>             
-     
+      <a href="https://grantsignal.beehiiv.com/subscribe" target="_blank" class="btn-primary" style="display:inline-block;font-size:16px;padding:16px 36px;width:100%;text-align:center;">
+        Subscribe Free — No Credit Card →
+      </a>
       <p class="subscribe-note">✓ Free forever &nbsp;·&nbsp; ✓ Unsubscribe anytime &nbsp;·&nbsp; ✓ No spam</p>
     </div>
   </div>
@@ -230,27 +222,27 @@ Subscribe Free — No Credit Card →
         <div class="pricing-tier">Free</div>
         <div class="pricing-price">$0<span>/month</span></div>
         <div class="pricing-annual">&nbsp;</div>
-        <hr class="pricing-divider">      <ul class="pricing-features">
+        <hr class="pricing-divider">
+        <ul class="pricing-features">
           <li>Top 3 grant matches weekly</li>
           <li>Urgent deadline alerts</li>
           <li>Direct links to Grants.gov</li>
           <li>Unsubscribe anytime</li>
-        </ul>
-        <a href="https://grantsignal.beehiiv.com/subscribe" class="pricing-cta outline">Subscribe Free →</a>
+        </ul>        <a href="https://grantsignal.beehiiv.com/subscribe" target="_blank" class="pricing-cta outline">Subscribe Free →</a>
       </div>
       <div class="pricing-card featured">
         <div class="pricing-badge">Most Popular</div>
         <div class="pricing-tier">Basic</div>
         <div class="pricing-price">$29<span>/month</span></div>
         <div class="pricing-annual">or $290/year — save $58</div>
-        <hr class="pricing-divider"><ul class="pricing-features">
+        <hr class="pricing-divider">
+        <ul class="pricing-features">
           <li>Full weekly digest (all matches)</li>
           <li>AI fit scores (1–5 stars)</li>
           <li>Mission area personalization</li>
-          <li>Urgent deadline alerts</li>
-          <li>Priority email support</li>
+          <li>Urgent deadline alerts</li><li>Priority email support</li>
         </ul>
-        <a href="https://grantsignal.beehiiv.com/upgrade" class="pricing-cta solid">Get Basic →</a>
+        <a href="https://grantsignal.beehiiv.com/upgrade" target="_blank" class="pricing-cta solid">Get Basic →</a>
       </div>
       <div class="pricing-card">
         <div class="pricing-tier">Premium</div>
@@ -264,7 +256,7 @@ Subscribe Free — No Credit Card →
           <li>Up to 3 team seats</li>
           <li>Priority support</li>
         </ul>
-        <a href="https://grantsignal.beehiiv.com/upgrade" class="pricing-cta outline">Get Premium →</a>
+        <a href="https://grantsignal.beehiiv.com/upgrade" target="_blank" class="pricing-cta outline">Get Premium →</a>
       </div>
     </div>
   </div>
