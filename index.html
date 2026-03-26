@@ -31,7 +31,13 @@
     .nav-cta{background:var(--teal);color:#fff!important;padding:7px 16px;border-radius:20px;font-weight:700!important;font-size:13px!important;}
     .nav-cta:hover{background:var(--teal-light)!important;}
     .hero{background:linear-gradient(150deg,var(--navy) 0%,#163d6e 60%,#1a4f6e 100%);padding:80px 24px 72px;text-align:center;position:relative;overflow:hidden;}
-    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 0%,rgba(79,195,247,0.12) 0%,transparent 70%);}
+    .hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 60% 0%, rgba(79,195,247,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
     .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(79,195,247,0.15);border:1px solid rgba(79,195,247,0.30);color:var(--blue-light);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:22px;}
     .hero h1{font-size:clamp(26px,5vw,44px);font-weight:800;color:#fff;line-height:1.2;max-width:700px;margin:0 auto 20px;letter-spacing:-0.5px;}
     .hero h1 em{font-style:normal;color:var(--blue-light);}
