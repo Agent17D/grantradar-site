@@ -119,7 +119,7 @@ def fetch_grants(max_records: int = 500) -> list[dict]:
         payload = {
             "oppStatuses": "posted",
             "rows": page_size,
-            "startRecordNum": offset,
+            "startRecord": offset,
             # Request all fields we need
             "fields": (
                 "id,oppNumber,title,agencyName,openDate,closeDate,"
@@ -138,7 +138,7 @@ def fetch_grants(max_records: int = 500) -> list[dict]:
             print(f"[grants.gov] ERROR decoding JSON at offset={offset}: {exc}")
             break
 
-        hits = data.get("data", {}).get("hits", [])
+        hits = data.get("data", {}).get("oppHits", [])
         if not hits:
             print(f"[grants.gov] No more results at offset={offset}.")
             break
