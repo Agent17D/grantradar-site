@@ -25,6 +25,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
+    permissions:
+      contents: write
+
     steps:
       # ── Checkout ────────────────────────────────────────────────────────────
       - name: Checkout repository
@@ -52,6 +55,15 @@ jobs:
           # Expose dry-run flag to the script (optional — handled by script)
           DRY_RUN:         ${{ github.event.inputs.dry_run || 'false' }}
         run: python scripts/digest.py
+
+      # ── Commit archive files ─────────────────────────────────────────────────
+      - name: Commit archive files
+        run: |
+          git config user.name "GrantSignal Bot"
+          git config user.email "digest@grantsignal.news"
+          git add archive/
+          git diff --staged --quiet || git commit -m "Add digest archive: $(date +%Y-%m-%d)"
+          git push
 
       # ── Upload digest artifact (for debugging) ───────────────────────────────
       - name: Archive digest logs
