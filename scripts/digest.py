@@ -685,6 +685,168 @@ def publish_beehiiv_post(html_body: str) -> None:
 # Main entry point
 # ---------------------------------------------------------------------------
 
+
+
+# ---------------------------------------------------------------------------
+# Step 9: Save archive entry (always runs, even in dry_run)
+# ---------------------------------------------------------------------------
+
+# Resolve paths relative to the repository root (one level up from scripts/)
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+_REPO_ROOT   = os.path.dirname(_SCRIPT_DIR)
+_ARCHIVE_DIR = os.path.join(_REPO_ROOT, "archive")
+
+
+def _render_grant_card(grant: dict, rank: int) -> str:
+    """Render a single grant as an HTML card for the archive page."""
+    score     = grant.get("_score", 0)
+    title     = grant.get("title",      "Untitled") or "Untitled"
+    agency    = grant.get("agencyName", "Unknown Agency") or "Unknown Agency"
+    close_dt  = grant.get("closeDate",  "") or ""
+    opp_num   = grant.get("oppNumber",  "") or ""
+    synopsis  = (grant.get("synopsis",  "") or "")[:500]
+    urgency   = urgency_flag(close_dt)
+    url       = grants_gov_url(opp_num) if opp_num else "https://www.grants.gov"
+
+    full_stars = int(score)
+    half_star  = 1 if (score - full_stars) >= 0.5 else 0
+    empty_stars = 5 - full_stars - half_star
+    stars_html  = "⭐" * full_stars + ("✨" if half_star else "") + "☆" * empty_stars
+
+    css_class = "grant-card"
+    if score >= 4.0:
+        css_class += " high-fit"
+    if urgency:
+        css_class += " urgent"
+
+    urgency_html = (
+        f'<span class="grant-urgency">⚡ {urgency}</span>'
+    ) if urgency else ""
+
+    def escape(s):
+        return (str(s)
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace('"', "&quot;"))
+
+    return f"""
+    <div class="{css_class}">
+      <div class="grant-rank">#{rank}</div>
+      <div class="grant-agency">{escape(agency)}</div>
+      <h3 class="grant-title">
+        <a href="{escape(url)}" target="_blank" rel="noopener">{escape(title)}</a>
+      </h3>
+      <div class="grant-scores">
+        <span class="grant-stars">{stars_html}</span>
+        <span class="grant-fit-label">Fit Score: {score}/5</span>
+        {urgency_html}
+      </div>
+      <p class="grant-synopsis">{escape(synopsis)}{"…" if len(synopsis) == 500 else ""}</p>
+      <div class="grant-footer">
+        <span class="grant-close-date">Closes: <strong>{escape(close_dt) or "See listing"}</strong></span>
+        <a href="{escape(url)}" target="_blank" rel="noopener" class="grant-link">View on Grants.gov →</a>
+      </div>
+    </div>"""
+
+
+def save_archive_entry(grants: list[dict], week_date: datetime.date) -> list[str]:
+    """
+    Build a standalone archive HTML page for this week's digest and update
+    archive/issues.json.
+
+    Args:
+        grants:     The paid_digest list (scored + sorted grants).
+        week_date:  The date representing this digest week (usually today).
+
+    Returns:
+        List of file paths that were written (relative to repo root),
+        suitable for `git add`.
+    """
+    os.makedirs(_ARCHIVE_DIR, exist_ok=True)
+
+    slug       = week_date.strftime("%Y-%m-%d")
+    week_label = week_date.strftime("Week of %b %-d, %Y")
+    issue_date = week_date.strftime("%B %-d, %Y")
+    grant_count = len(grants)
+    top_grants  = [g.get("title", "") for g in grants[:5] if g.get("title")]
+
+    # ── Build grant cards HTML ────────────────────────────────────────────────
+    if grants:
+        cards_html = "\n".join(_render_grant_card(g, i+1) for i, g in enumerate(grants))
+    else:
+        cards_html = '<p style="color:var(--text-muted);text-align:center;padding:32px;">No grants matched this week.</p>'
+
+    # ── Read the template ─────────────────────────────────────────────────────
+    template_path = os.path.join(_ARCHIVE_DIR, "digest-template.html")
+    if os.path.exists(template_path):
+        with open(template_path, "r", encoding="utf-8") as f:
+            page_html = f.read()
+    else:
+        # Fallback minimal structure if template missing
+        page_html = "<html><body>{{GRANT_CARDS}}</body></html>"
+
+    # ── Substitute template placeholders ─────────────────────────────────────
+    page_title   = f"GrantSignal — {week_label}"
+    og_title     = f"GrantSignal Digest — {week_label}"
+    og_desc      = f"{grant_count} federal grant opportunities for nonprofits and schools matched this week."
+    meta_desc    = og_desc
+
+    replacements = {
+        "{{PAGE_TITLE}}":    page_title,
+        "{{OG_TITLE}}":      og_title,
+        "{{OG_DESCRIPTION}}": og_desc,
+        "{{META_DESCRIPTION}}": meta_desc,
+        "{{SLUG}}":          slug,
+        "{{WEEK_LABEL}}":    week_label,
+        "{{DIGEST_TITLE}}":  week_label,
+        "{{ISSUE_DATE}}":    issue_date,
+        "{{GRANT_COUNT}}":   str(grant_count),
+        "{{GRANT_CARDS}}":   cards_html,
+    }
+    for placeholder, value in replacements.items():
+        page_html = page_html.replace(placeholder, value)
+
+    # ── Write archive/YYYY-MM-DD.html ─────────────────────────────────────────
+    archive_html_path = os.path.join(_ARCHIVE_DIR, f"{slug}.html")
+    with open(archive_html_path, "w", encoding="utf-8") as f:
+        f.write(page_html)
+    print(f"[archive] Written {archive_html_path}")
+
+    # ── Update archive/issues.json ────────────────────────────────────────────
+    issues_json_path = os.path.join(_ARCHIVE_DIR, "issues.json")
+    if os.path.exists(issues_json_path):
+        with open(issues_json_path, "r", encoding="utf-8") as f:
+            try:
+                issues = json.load(f)
+            except json.JSONDecodeError:
+                issues = []
+    else:
+        issues = []
+
+    new_entry = {
+        "date":        slug,
+        "title":       week_label,
+        "slug":        slug,
+        "grant_count": grant_count,
+        "top_grants":  top_grants,
+    }
+
+    # Remove any existing entry for this same date (idempotent re-runs)
+    issues = [i for i in issues if i.get("slug") != slug]
+
+    # Prepend new entry (newest first)
+    issues.insert(0, new_entry)
+
+    with open(issues_json_path, "w", encoding="utf-8") as f:
+        json.dump(issues, f, indent=2, ensure_ascii=False)
+    print(f"[archive] Updated {issues_json_path} ({len(issues)} total issues)")
+
+    return [
+        f"archive/{slug}.html",
+        "archive/issues.json",
+    ]
+
 def main() -> None:
     print("=" * 60)
     print("  GrantSignal Weekly Digest Pipeline")
@@ -743,6 +905,11 @@ def main() -> None:
 
     # ── 8. Publish Beehiiv archive post ──────────────────────────────────────
     publish_beehiiv_post(paid_html)
+
+    # ── 9. Save archive entry (runs always, including dry_run) ───────────────
+    changed_files = save_archive_entry(paid_digest, datetime.date.today())
+    if changed_files:
+        print(f"[archive] Files written: {', '.join(changed_files)}")
 
     print("=" * 60)
     print("  Pipeline complete ✅")
