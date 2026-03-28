@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Set up your personalized GrantSignal digest — tell us about your organization to get the most relevant federal grant alerts.">
+  <title>GrantSignal — Personalize Your Digest</title>
+  <style>
+    :root {
+      --navy:#0f3460;--blue:#1565c0;--blue-light:#4fc3f7;--teal:#00897b;--teal-light:#4db6ac;
+      --bg:#ffffff;--bg-alt:#f4f7fb;--text:#1a1a2e;--text-muted:#5a6a7a;--border:#dde4ed;
+      --radius:10px;--shadow:0 4px 24px rgba(15,52,96,0.10);
+    }
+    @media(prefers-color-scheme:dark){:root{--bg:#0d1b2a;--bg-alt:#13243a;--text:#e8f0fe;--text-muted:#8aacc8;--border:#1e3a5f;--shadow:0 4px 24px rgba(0,0,0,0.40);}}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px;}
+    a{color:var(--blue);text-decoration:none;}a:hover{text-decoration:underline;}
+
+    /* Nav */
+    nav{background:var(--navy);padding:0 24px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.20);}
+    .nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px;}
+    .nav-logo{font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;text-decoration:none;}
+    .nav-logo .signal{color:var(--blue-light);}
+    .nav-links{display:flex;gap:24px;list-style:none;}
+    .nav-links a{color:#b0c4de;font-size:14px;font-weight:500;transition:color 0.2s;}
+    .nav-links a:hover{color:#fff;text-decoration:none;}
+    .nav-cta{background:var(--teal);color:#fff!important;padding:7px 16px;border-radius:20px;font-weight:700!important;font-size:13px!important;}
+    .nav-cta:hover{background:var(--teal-light)!important;}
+
+    /* Hero bar */
+    .onboarding-hero{background:linear-gradient(150deg,var(--navy) 0%,#163d6e 60%,#1a4f6e 100%);padding:40px 24px 32px;text-align:center;}
+    .onboarding-hero h1{font-size:clamp(20px,4vw,30px);font-weight:800;color:#fff;margin-bottom:10px;}
+    .onboarding-hero p{font-size:15px;color:#b0cce4;max-width:540px;margin:0 auto;}
+
+    /* Main layout */
+    .onboarding-wrap{max-width:680px;margin:0 auto;padding:40px 24px 80px;}
+
+    /* Progress bar */
+    .progress-container{margin-bottom:36px;}
+    .progress-label{font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+    .progress-label .step-text{color:var(--teal);font-weight:700;}
+    .progress-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+    .progress-fill{height:100%;background:var(--teal);border-radius:3px;transition:width 0.4s ease;}
+
+    /* Step pages */
+    .step-page{display:none;}
+    .step-page.active{display:block;}
+
+    /* Question cards */
+    .q-card{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:24px 24px 20px;margin-bottom:20px;box-shadow:var(--shadow);}
+    .q-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);margin-bottom:6px;}
+    .q-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px;}
+    .q-hint{font-size:13px;color:var(--text-muted);margin-bottom:16px;}
+
+    /* Text input */
+    .text-input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:6px;font-size:15px;background:var(--bg);color:var(--text);transition:border-color 0.2s;outline:none;}
+    .text-input:focus{border-color:var(--teal);}
+
+    /* Radio options */
+    .radio-list{display:flex;flex-direction:column;gap:8px;}
+    .radio-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.15s;background:var(--bg);}
+    .radio-item:hover{border-color:var(--teal);background:rgba(0,137,123,0.04);}
+    .radio-item.selected{border-color:var(--teal);background:rgba(0,137,123,0.08);}
+    .radio-item input[type="radio"]{accent-color:var(--teal);width:16px;height:16px;cursor:pointer;flex-shrink:0;}
+    .radio-item label{font-size:14px;cursor:pointer;color:var(--text);user-select:none;flex:1;}
+    .radio-item.selected label{color:var(--teal);font-weight:600;}
+
+    /* Checkbox options */
+    .checkbox-list{display:flex;flex-direction:column;gap:8px;}
+    .checkbox-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.15s;background:var(--bg);}
+    .checkbox-item:hover{border-color:var(--teal);background:rgba(0,137,123,0.04);}
+    .checkbox-item.selected{border-color:var(--teal);background:rgba(0,137,123,0.08);}
+    .checkbox-item input[type="checkbox"]{accent-color:var(--teal);width:16px;height:16px;cursor:pointer;flex-shrink:0;}
+    .checkbox-item label{font-size:14px;cursor:pointer;color:var(--text);user-select:none;flex:1;}
+    .checkbox-item.selected label{color:var(--teal);font-weight:600;}
+
+    /* States grid */
+    .states-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;}
+    .states-grid .checkbox-item{padding:8px 12px;}
+    .states-grid .checkbox-item label{font-size:13px;}
+
+    /* Other text reveal */
+    .other-reveal{margin-top:10px;display:none;}
+    .other-reveal.visible{display:block;}
+
+    /* Navigation buttons */
+    .btn-row{display:flex;gap:12px;align-items:center;margin-top:28px;}
+    .btn-back{background:transparent;border:1.5px solid var(--border);color:var(--text-muted);font-size:14px;font-weight:600;padding:12px 22px;border-radius:6px;cursor:pointer;transition:all 0.2s;}
+    .btn-back:hover{border-color:var(--blue);color:var(--blue);}
+    .btn-next{background:var(--teal);color:#fff;font-size:15px;font-weight:700;padding:13px 32px;border-radius:6px;cursor:pointer;border:none;transition:background 0.2s,transform 0.1s;box-shadow:0 4px 16px rgba(0,137,123,0.30);}
+    .btn-next:hover{background:#00796b;transform:translateY(-1px);}
+    .btn-next:active{transform:translateY(0);}
+    .btn-spacer{flex:1;}
+
+    /* Error message */
+    .error-msg{background:#fff0f0;border:1px solid #ffcdd2;color:#c62828;font-size:13px;font-weight:600;padding:10px 16px;border-radius:6px;margin-top:16px;display:none;}
+    .error-msg.visible{display:block;}
+
+    /* Success screen */
+    .success-screen{display:none;text-align:center;padding:60px 24px;}
+    .success-screen.visible{display:block;}
+    .success-icon{font-size:64px;margin-bottom:20px;animation:pop 0.5s ease;}
+    @keyframes pop{0%{transform:scale(0.5);opacity:0;}80%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
+    .success-screen h2{font-size:26px;font-weight:800;color:var(--text);margin-bottom:14px;}
+    .success-screen p{font-size:16px;color:var(--text-muted);max-width:460px;margin:0 auto 28px;line-height:1.7;}
+    .success-card{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;max-width:420px;margin:0 auto;box-shadow:var(--shadow);}
+    .success-card p{font-size:14px;color:var(--text-muted);margin:0;}
+    .success-card a{color:var(--teal);font-weight:600;}
+    .back-home{display:inline-block;margin-top:28px;background:var(--navy);color:#fff;font-weight:700;padding:12px 28px;border-radius:6px;font-size:14px;text-decoration:none;}
+    .back-home:hover{background:#163d6e;text-decoration:none;}
+
+    /* Footer */
+    footer{background:var(--navy);padding:32px 24px;color:#90a8c0;font-size:13px;}
+    .footer-inner{max-width:900px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+    .footer-brand{font-size:15px;font-weight:800;color:#fff;}
+    .footer-brand span{color:var(--blue-light);}
+    .footer-copy{font-size:11px;color:#4a6278;}
+
+    @media(max-width:600px){
+      .nav-links{display:none;}
+      .onboarding-wrap{padding:28px 16px 60px;}
+      .states-grid{grid-template-columns:1fr 1fr;}
+      .btn-row{flex-wrap:wrap;}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="https://grantsignal.news" class="nav-logo">📡 Grant<span class="signal">Signal</span></a>
+    <ul class="nav-links">
+      <li><a href="https://grantsignal.news/#how-it-works">How it works</a></li>
+      <li><a href="https://grantsignal.news/#features">Features</a></li>
+      <li><a href="https://grantsignal.news/#pricing">Pricing</a></li>
+      <li><a href="https://grantsignal.news/archive">Past Digests</a></li>
+      <li><a href="https://dereks-newsletter-be7bae.beehiiv.com/subscribe" target="_blank" class="nav-cta">Subscribe Free →</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="onboarding-hero">
+  <h1>Personalize Your GrantSignal Digest</h1>
+  <p>Help us personalize your GrantSignal digest. Takes 2 minutes — we'll use this to surface the grants most relevant to your organization.</p>
+</div>
+
+<div class="onboarding-wrap">
+
+  <!-- Progress bar -->
+  <div class="progress-container" id="progressContainer">
+    <div class="progress-label">
+      <span id="progressText">Step 1 of 3 — Your Organization</span>
+      <span class="step-text" id="progressPct">33%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:33%"></div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 1 ===== -->
+  <div class="step-page active" id="step1">
+
+    <!-- Q1: Org name -->
+    <div class="q-card">
+      <div class="q-label">Question 1</div>
+      <div class="q-title">What is your organization's name?</div>
+      <div class="q-hint">Optional — helps us personalize your digest header.</div>
+      <input type="text" class="text-input" id="orgName" placeholder="e.g. Sunrise Community Foundation" autocomplete="organization">
+    </div>
+
+    <!-- Q2: Org type -->
+    <div class="q-card">
+      <div class="q-label">Question 2 <span style="color:#c62828;font-size:12px;">*required</span></div>
+      <div class="q-title">What best describes your organization?</div>
+      <div class="q-hint">Select the option that most closely fits.</div>
+      <div class="radio-list" id="orgTypeList">
+        <div class="radio-item" onclick="selectRadio('orgType','501c3')">
+          <input type="radio" name="orgType" id="orgType_501c3" value="501(c)(3) Nonprofit">
+          <label for="orgType_501c3">501(c)(3) Nonprofit</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('orgType','pubschool')">
+          <input type="radio" name="orgType" id="orgType_pubschool" value="Public School / School District">
+          <label for="orgType_pubschool">Public School / School District</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('orgType','privschool')">
+          <input type="radio" name="orgType" id="orgType_privschool" value="Private School">
+          <label for="orgType_privschool">Private School</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('orgType','college')">
+          <input type="radio" name="orgType" id="orgType_college" value="Community College / University">
+          <label for="orgType_college">Community College / University</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('orgType','faith')">
+          <input type="radio" name="orgType" id="orgType_faith" value="Faith-Based Organization">
+          <label for="orgType_faith">Faith-Based Organization</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('orgType','library')">
+          <input type="radio" name="orgType" id="orgType_library" value="Library">
+          <label for="orgType_library">Library</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('orgType','tribal')">
+          <input type="radio" name="orgType" id="orgType_tribal" value="Tribal Organization">
+          <label for="orgType_tribal">Tribal Organization</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('orgType','hospital')">
+          <input type="radio" name="orgType" id="orgType_hospital" value="Hospital / Health System">
+          <label for="orgType_hospital">Hospital / Health System</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('orgType','veteran')">
+          <input type="radio" name="orgType" id="orgType_veteran" value="Veteran Service Organization">
+          <label for="orgType_veteran">Veteran Service Organization</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('orgType','foodbank')">
+          <input type="radio" name="orgType" id="orgType_foodbank" value="Food Bank / Pantry">
+          <label for="orgType_foodbank">Food Bank / Pantry</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('orgType','legalaid')">
+          <input type="radio" name="orgType" id="orgType_legalaid" value="Legal Aid Organization">
+          <label for="orgType_legalaid">Legal Aid Organization</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('orgType','other')">
+          <input type="radio" name="orgType" id="orgType_other" value="Other">
+          <label for="orgType_other">Other (please specify)</label>
+        </div>
+      </div>
+      <div class="other-reveal" id="orgTypeOtherReveal">
+        <input type="text" class="text-input" id="orgTypeOther" placeholder="Please describe your organization type…">
+      </div>
+    </div>
+
+    <!-- Q3: Mission area -->
+    <div class="q-card">
+      <div class="q-label">Question 3 <span style="color:#c62828;font-size:12px;">*required</span></div>
+      <div class="q-title">What is your primary mission area?</div>
+      <div class="q-hint">Choose the one that best represents your core work.</div>
+      <div class="radio-list" id="missionList">
+        <div class="radio-item" onclick="selectRadio('mission','education')">
+          <input type="radio" name="mission" id="mission_education" value="Education & Youth Development">
+          <label for="mission_education">Education &amp; Youth Development</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('mission','health')">
+          <input type="radio" name="mission" id="mission_health" value="Health & Human Services">
+          <label for="mission_health">Health &amp; Human Services</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('mission','arts')">
+          <input type="radio" name="mission" id="mission_arts" value="Arts, Culture & Humanities">
+          <label for="mission_arts">Arts, Culture &amp; Humanities</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('mission','environment')">
+          <input type="radio" name="mission" id="mission_environment" value="Environment & Conservation">
+          <label for="mission_environment">Environment &amp; Conservation</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('mission','community')">
+          <input type="radio" name="mission" id="mission_community" value="Community & Economic Development">
+          <label for="mission_community">Community &amp; Economic Development</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('mission','housing')">
+          <input type="radio" name="mission" id="mission_housing" value="Housing & Homelessness">
+          <label for="mission_housing">Housing &amp; Homelessness</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('mission','food')">
+          <input type="radio" name="mission" id="mission_food" value="Food Security & Nutrition">
+          <label for="mission_food">Food Security &amp; Nutrition</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('mission','workforce')">
+          <input type="radio" name="mission" id="mission_workforce" value="Workforce Development & Job Training">
+          <label for="mission_workforce">Workforce Development &amp; Job Training</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('mission','mentalhealth')">
+          <input type="radio" name="mission" id="mission_mentalhealth" value="Substance Abuse & Mental Health">
+          <label for="mission_mentalhealth">Substance Abuse &amp; Mental Health</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('mission','disaster')">
+          <input type="radio" name="mission" id="mission_disaster" value="Disaster Relief & Emergency Services">
+          <label for="mission_disaster">Disaster Relief &amp; Emergency Services</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('mission','missionother')">
+          <input type="radio" name="mission" id="mission_missionother" value="Other">
+          <label for="mission_missionother">Other (please specify)</label>
+        </div>
+      </div>
+      <div class="other-reveal" id="missionOtherReveal">
+        <input type="text" class="text-input" id="missionOther" placeholder="Please describe your primary mission area…">
+      </div>
+    </div>
+
+    <div class="error-msg" id="error1">Please answer all required questions before continuing.</div>
+    <div class="btn-row">
+      <div class="btn-spacer"></div>
+      <button class="btn-next" onclick="goToStep(2)">Next →</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 2 ===== -->
+  <div class="step-page" id="step2">
+
+    <!-- Q4: Populations served -->
+    <div class="q-card">
+      <div class="q-label">Question 4 <span style="color:#c62828;font-size:12px;">*required</span></div>
+      <div class="q-title">Do you serve any of these specific populations?</div>
+      <div class="q-hint">Select all that apply.</div>
+      <div class="checkbox-list" id="populationsList">
+        <div class="checkbox-item" onclick="toggleCheckbox(this)">
+          <input type="checkbox" name="populations" value="Low-income communities">
+          <label>Low-income communities</label>
+        </div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)">
+          <input type="checkbox" name="populations" value="Children & youth (under 18)">
+          <label>Children &amp; youth (under 18)</label>
+        </div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)">
+          <input type="checkbox" name="populations" value="Seniors (65+)">
+          <label>Seniors (65+)</label>
+        </div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)">
+          <input type="checkbox" name="populations" value="Veterans">
+          <label>Veterans</label>
+        </div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)">
+          <input type="checkbox" name="populations" value="People with disabilities">
+          <label>People with disabilities</label>
+        </div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)">
+          <input type="checkbox" name="populations" value="Rural communities">
+          <label>Rural communities</label>
+        </div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)">
+          <input type="checkbox" name="populations" value="Immigrants & refugees">
+          <label>Immigrants &amp; refugees</label>
+        </div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)">
+          <input type="checkbox" name="populations" value="LGBTQ+ communities">
+          <label>LGBTQ+ communities</label>
+        </div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)">
+          <input type="checkbox" name="populations" value="People experiencing homelessness">
+          <label>People experiencing homelessness</label>
+        </div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)">
+          <input type="checkbox" name="populations" value="Formerly incarcerated individuals">
+          <label>Formerly incarcerated individuals</label>
+        </div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)">
+          <input type="checkbox" name="populations" value="Domestic violence survivors">
+          <label>Domestic violence survivors</label>
+        </div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)">
+          <input type="checkbox" name="populations" value="Native American / Indigenous communities">
+          <label>Native American / Indigenous communities</label>
+        </div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)">
+          <input type="checkbox" name="populations" value="Foster care / Aging out of foster care">
+          <label>Foster care / Aging out of foster care</label>
+        </div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)">
+          <input type="checkbox" name="populations" value="Survivors of human trafficking">
+          <label>Survivors of human trafficking</label>
+        </div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this,'none')">
+          <input type="checkbox" name="populations" value="None of the above" id="noneAbove">
+          <label>None of the above</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q5: Budget -->
+    <div class="q-card">
+      <div class="q-label">Question 5 <span style="color:#c62828;font-size:12px;">*required</span></div>
+      <div class="q-title">What is your organization's annual operating budget?</div>
+      <div class="radio-list" id="budgetList">
+        <div class="radio-item" onclick="selectRadio('budget','under100k')">
+          <input type="radio" name="budget" id="budget_under100k" value="Under $100K">
+          <label for="budget_under100k">Under $100K</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('budget','100k500k')">
+          <input type="radio" name="budget" id="budget_100k500k" value="$100K – $500K">
+          <label for="budget_100k500k">$100K – $500K</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('budget','500k1m')">
+          <input type="radio" name="budget" id="budget_500k1m" value="$500K – $1M">
+          <label for="budget_500k1m">$500K – $1M</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('budget','1m5m')">
+          <input type="radio" name="budget" id="budget_1m5m" value="$1M – $5M">
+          <label for="budget_1m5m">$1M – $5M</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('budget','over5m')">
+          <input type="radio" name="budget" id="budget_over5m" value="Over $5M">
+          <label for="budget_over5m">Over $5M</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q6: Grant size -->
+    <div class="q-card">
+      <div class="q-label">Question 6 <span style="color:#c62828;font-size:12px;">*required</span></div>
+      <div class="q-title">What grant sizes are you typically eligible for?</div>
+      <div class="radio-list" id="grantSizeList">
+        <div class="radio-item" onclick="selectRadio('grantSize','under25k')">
+          <input type="radio" name="grantSize" id="grantSize_under25k" value="Under $25K">
+          <label for="grantSize_under25k">Under $25K</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('grantSize','25k100k')">
+          <input type="radio" name="grantSize" id="grantSize_25k100k" value="$25K – $100K">
+          <label for="grantSize_25k100k">$25K – $100K</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('grantSize','100k500k')">
+          <input type="radio" name="grantSize" id="grantSize_100k500k" value="$100K – $500K">
+          <label for="grantSize_100k500k">$100K – $500K</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('grantSize','500kplus')">
+          <input type="radio" name="grantSize" id="grantSize_500kplus" value="$500K+">
+          <label for="grantSize_500kplus">$500K+</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('grantSize','anysize')">
+          <input type="radio" name="grantSize" id="grantSize_anysize" value="Any size">
+          <label for="grantSize_anysize">Any size</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-msg" id="error2">Please answer all required questions before continuing.</div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="goToStep(1)">← Back</button>
+      <div class="btn-spacer"></div>
+      <button class="btn-next" onclick="goToStep(3)">Next →</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 3 ===== -->
+  <div class="step-page" id="step3">
+
+    <!-- Q7: States -->
+    <div class="q-card">
+      <div class="q-label">Question 7 <span style="color:#c62828;font-size:12px;">*required</span></div>
+      <div class="q-title">Which states does your organization operate in?</div>
+      <div class="q-hint">Select all that apply.</div>
+      <div class="checkbox-list states-grid" id="statesList">
+        <div class="checkbox-item" onclick="toggleCheckbox(this,'nationwide')"><input type="checkbox" name="states" value="Nationwide / Multiple States" id="stateNationwide"><label>Nationwide / Multiple States</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Alabama"><label>Alabama</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Alaska"><label>Alaska</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Arizona"><label>Arizona</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Arkansas"><label>Arkansas</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="California"><label>California</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Colorado"><label>Colorado</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Connecticut"><label>Connecticut</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Delaware"><label>Delaware</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Washington D.C."><label>Washington D.C.</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Florida"><label>Florida</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Georgia"><label>Georgia</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Hawaii"><label>Hawaii</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Idaho"><label>Idaho</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Illinois"><label>Illinois</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Indiana"><label>Indiana</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Iowa"><label>Iowa</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Kansas"><label>Kansas</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Kentucky"><label>Kentucky</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Louisiana"><label>Louisiana</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Maine"><label>Maine</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Maryland"><label>Maryland</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Massachusetts"><label>Massachusetts</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Michigan"><label>Michigan</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Minnesota"><label>Minnesota</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Mississippi"><label>Mississippi</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Missouri"><label>Missouri</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Montana"><label>Montana</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Nebraska"><label>Nebraska</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Nevada"><label>Nevada</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="New Hampshire"><label>New Hampshire</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="New Jersey"><label>New Jersey</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="New Mexico"><label>New Mexico</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="New York"><label>New York</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="North Carolina"><label>North Carolina</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="North Dakota"><label>North Dakota</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Ohio"><label>Ohio</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Oklahoma"><label>Oklahoma</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Oregon"><label>Oregon</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Pennsylvania"><label>Pennsylvania</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Rhode Island"><label>Rhode Island</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="South Carolina"><label>South Carolina</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="South Dakota"><label>South Dakota</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Tennessee"><label>Tennessee</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Texas"><label>Texas</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Utah"><label>Utah</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Vermont"><label>Vermont</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Virginia"><label>Virginia</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Washington"><label>Washington</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="West Virginia"><label>West Virginia</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Wisconsin"><label>Wisconsin</label></div>
+        <div class="checkbox-item" onclick="toggleCheckbox(this)"><input type="checkbox" name="states" value="Wyoming"><label>Wyoming</label></div>
+      </div>
+    </div>
+
+    <!-- Q8: Experience -->
+    <div class="q-card">
+      <div class="q-label">Question 8 <span style="color:#c62828;font-size:12px;">*required</span></div>
+      <div class="q-title">How experienced is your team with federal grant applications?</div>
+      <div class="radio-list" id="experienceList">
+        <div class="radio-item" onclick="selectRadio('experience','new')">
+          <input type="radio" name="experience" id="experience_new" value="New to federal grants">
+          <label for="experience_new">New to federal grants</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('experience','some')">
+          <input type="radio" name="experience" id="experience_some" value="Some experience (1–3 applications)">
+          <label for="experience_some">Some experience (1–3 applications)</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('experience','experienced')">
+          <input type="radio" name="experience" id="experience_experienced" value="Experienced (4+ applications)">
+          <label for="experience_experienced">Experienced (4+ applications)</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio('experience','dedicated')">
+          <input type="radio" name="experience" id="experience_dedicated" value="We have a dedicated grant writer">
+          <label for="experience_dedicated">We have a dedicated grant writer</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-msg" id="error3">Please answer all required questions before submitting.</div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="goToStep(2)">← Back</button>
+      <div class="btn-spacer"></div>
+      <button class="btn-next" onclick="submitSurvey()" style="background:var(--navy);box-shadow:0 4px 16px rgba(15,52,96,0.30);">Complete Setup →</button>
+    </div>
+  </div>
+
+  <!-- ===== SUCCESS ===== -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">🎉</div>
+    <h2>You're all set!</h2>
+    <p>Your first personalized digest arrives this Tuesday. We'll use your answers to surface the grants most relevant to your organization.</p>
+    <div class="success-card">
+      <p>Questions? Email us at <a href="mailto:support@grantsignal.news">support@grantsignal.news</a></p>
+    </div>
+    <a href="https://grantsignal.news" class="back-home">← Back to GrantSignal</a>
+  </div>
+
+</div><!-- /onboarding-wrap -->
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">📡 Grant<span>Signal</span></div>
+    <div class="footer-copy">© 2026 GrantSignal. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+  // ── State ──────────────────────────────────────────────
+  let currentStep = 1;
+  const totalSteps = 3;
+
+  const stepLabels = [
+    'Step 1 of 3 — Your Organization',
+    'Step 2 of 3 — Who You Serve',
+    'Step 3 of 3 — Location & Experience'
+  ];
+  const stepPcts = ['33%', '66%', '100%'];
+
+  // ── Navigation ─────────────────────────────────────────
+  function goToStep(n) {
+    if (n > currentStep && !validateStep(currentStep)) return;
+    document.getElementById('step' + currentStep).classList.remove('active');
+    currentStep = n;
+    document.getElementById('step' + currentStep).classList.add('active');
+    updateProgress();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
+  function updateProgress() {
+    document.getElementById('progressText').textContent = stepLabels[currentStep - 1];
+    document.getElementById('progressPct').textContent = stepPcts[currentStep - 1];
+    document.getElementById('progressFill').style.width = stepPcts[currentStep - 1];
+  }
+
+  // ── Radio selection ────────────────────────────────────
+  function selectRadio(groupName, itemId) {
+    // Uncheck all in group
+    document.querySelectorAll('input[name="' + groupName + '"]').forEach(function(inp) {
+      inp.closest('.radio-item').classList.remove('selected');
+      inp.checked = false;
+    });
+    // Find and check the clicked one
+    var items = document.querySelectorAll('input[name="' + groupName + '"]');
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].value && items[i].closest('.radio-item') === event.currentTarget) {
+        items[i].checked = true;
+        items[i].closest('.radio-item').classList.add('selected');
+        break;
+      }
+    }
+    // Handle "Other" reveals
+    if (groupName === 'orgType') {
+      var otherSelected = document.querySelector('input[name="orgType"][value="Other"]');
+      var reveal = document.getElementById('orgTypeOtherReveal');
+      if (otherSelected && otherSelected.checked) {
+        reveal.classList.add('visible');
+      } else {
+        reveal.classList.remove('visible');
+      }
+    }
+    if (groupName === 'mission') {
+      var missionOther = document.querySelector('input[name="mission"][value="Other"]');
+      var mReveal = document.getElementById('missionOtherReveal');
+      if (missionOther && missionOther.checked) {
+        mReveal.classList.add('visible');
+      } else {
+        mReveal.classList.remove('visible');
+      }
+    }
+    // Hide error on interaction
+    document.getElementById('error' + currentStep).classList.remove('visible');
+  }
+
+  // ── Checkbox toggle ────────────────────────────────────
+  function toggleCheckbox(el, special) {
+    var cb = el.querySelector('input[type="checkbox"]');
+    cb.checked = !cb.checked;
+    el.classList.toggle('selected', cb.checked);
+
+    // "None of the above" clears others in same list
+    if (special === 'none' && cb.checked) {
+      var siblings = document.querySelectorAll('#populationsList .checkbox-item:not(:last-child)');
+      siblings.forEach(function(s) {
+        s.querySelector('input').checked = false;
+        s.classList.remove('selected');
+      });
+    }
+    // "Nationwide" clears other states
+    if (special === 'nationwide' && cb.checked) {
+      document.querySelectorAll('#statesList .checkbox-item:not(:first-child) input').forEach(function(inp) {
+        inp.checked = false;
+        inp.closest('.checkbox-item').classList.remove('selected');
+      });
+    }
+    // If any specific item is checked, uncheck "None" / "Nationwide"
+    if (!special) {
+      var noneAbove = document.getElementById('noneAbove');
+      if (noneAbove && noneAbove.checked) {
+        noneAbove.checked = false;
+        noneAbove.closest('.checkbox-item').classList.remove('selected');
+      }
+      var nationwide = document.getElementById('stateNationwide');
+      if (nationwide && nationwide.checked && el.closest('#statesList')) {
+        nationwide.checked = false;
+        nationwide.closest('.checkbox-item').classList.remove('selected');
+      }
+    }
+    // Hide error on interaction
+    if (currentStep <= 3) document.getElementById('error' + currentStep).classList.remove('visible');
+  }
+
+  // ── Validation ─────────────────────────────────────────
+  function validateStep(step) {
+    var errorEl = document.getElementById('error' + step);
+    var ok = true;
+
+    if (step === 1) {
+      var orgType = document.querySelector('input[name="orgType"]:checked');
+      var mission = document.querySelector('input[name="mission"]:checked');
+      if (!orgType || !mission) ok = false;
+      // If Other selected, require text
+      if (orgType && orgType.value === 'Other' && !document.getElementById('orgTypeOther').value.trim()) ok = false;
+      if (mission && mission.value === 'Other' && !document.getElementById('missionOther').value.trim()) ok = false;
+    }
+
+    if (step === 2) {
+      var populations = document.querySelectorAll('input[name="populations"]:checked');
+      var budget = document.querySelector('input[name="budget"]:checked');
+      var grantSize = document.querySelector('input[name="grantSize"]:checked');
+      if (populations.length === 0 || !budget || !grantSize) ok = false;
+    }
+
+    if (step === 3) {
+      var states = document.querySelectorAll('input[name="states"]:checked');
+      var experience = document.querySelector('input[name="experience"]:checked');
+      if (states.length === 0 || !experience) ok = false;
+    }
+
+    if (!ok) {
+      errorEl.classList.add('visible');
+    } else {
+      errorEl.classList.remove('visible');
+    }
+    return ok;
+  }
+
+  // ── Submit ─────────────────────────────────────────────
+  function submitSurvey() {
+    if (!validateStep(3)) return;
+
+    // Collect all answers
+    var orgTypeVal = document.querySelector('input[name="orgType"]:checked').value;
+    if (orgTypeVal === 'Other') orgTypeVal = document.getElementById('orgTypeOther').value.trim() || 'Other';
+
+    var missionVal = document.querySelector('input[name="mission"]:checked').value;
+    if (missionVal === 'Other') missionVal = document.getElementById('missionOther').value.trim() || 'Other';
+
+    var populations = Array.from(document.querySelectorAll('input[name="populations"]:checked')).map(function(cb) { return cb.value; });
+    var states = Array.from(document.querySelectorAll('input[name="states"]:checked')).map(function(cb) { return cb.value; });
+
+    var survey = {
+      completedAt: new Date().toISOString(),
+      orgName: document.getElementById('orgName').value.trim(),
+      orgType: orgTypeVal,
+      missionArea: missionVal,
+      populationsServed: populations,
+      annualBudget: document.querySelector('input[name="budget"]:checked').value,
+      grantSize: document.querySelector('input[name="grantSize"]:checked').value,
+      states: states,
+      grantExperience: document.querySelector('input[name="experience"]:checked').value
+    };
+
+    try {
+      localStorage.setItem('grantsignal_onboarding', JSON.stringify(survey));
+    } catch(e) {
+      // localStorage may be unavailable in some contexts — ignore silently
+    }
+
+    // Show success
+    document.getElementById('step3').classList.remove('active');
+    document.getElementById('progressContainer').style.display = 'none';
+    document.getElementById('successScreen').classList.add('visible');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+</script>
+
+</body>
+</html>
