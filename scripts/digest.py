@@ -646,57 +646,6 @@ def send_email_batch(
 # Step 8: Publish Beehiiv archive post
 # ---------------------------------------------------------------------------
 
-def publish_beehiiv_post(html_body: str) -> None:
-    """
-    Create a published web post on Beehiiv with the full digest as archive.
-    """
-    week_str  = datetime.date.today().strftime("%B %d, %Y")
-    post_title = f"GrantSignal Weekly Digest — Week of {week_str}"
-
-    url = f"https://api.beehiiv.com/v2/publications/{BEEHIIV_PUB_ID}/posts"
-    payload = {
-        "title":    post_title,
-        "subtitle": "Federal grant opportunities for nonprofits and schools.",
-        "body":     html_body,   # Beehiiv accepts HTML in the body field
-        "status":   "confirmed", # Published immediately
-        "channel":  "web",       # Web post (archive), not email blast
-        "content_tags": ["grants", "nonprofits", "education"],
-    }
-    headers = {
-        "Authorization": f"Bearer {BEEHIIV_API_KEY}",
-        "Content-Type":  "application/json",
-    }
-
-    print(f"[beehiiv] Publishing archive post: '{post_title}'…")
-    try:
-        resp = requests.post(url, json=payload, headers=headers, timeout=30)
-        resp.raise_for_status()
-        post_data = resp.json().get("data", {})
-        post_id  = post_data.get("id", "?")
-        post_url = post_data.get("web_url", "")
-        print(f"[beehiiv] Archive post created — id={post_id}  url={post_url}")
-    except requests.RequestException as exc:
-        print(f"[beehiiv] ERROR creating archive post: {exc}")
-        if hasattr(exc, "response") and exc.response is not None:
-            print(f"[beehiiv] Response body: {exc.response.text[:500]}")
-
-
-# ---------------------------------------------------------------------------
-# Main entry point
-# ---------------------------------------------------------------------------
-
-
-
-# ---------------------------------------------------------------------------
-# Step 9: Save archive entry (always runs, even in dry_run)
-# ---------------------------------------------------------------------------
-
-# Resolve paths relative to the repository root (one level up from scripts/)
-_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-_REPO_ROOT   = os.path.dirname(_SCRIPT_DIR)
-_ARCHIVE_DIR = os.path.join(_REPO_ROOT, "archive")
-
-
 def _render_grant_card(grant: dict, rank: int) -> str:
     """Render a single grant as an HTML card for the archive page."""
     score     = grant.get("_score", 0)
@@ -904,7 +853,6 @@ def main() -> None:
     )
 
     # ── 8. Publish Beehiiv archive post ──────────────────────────────────────
-    publish_beehiiv_post(paid_html)
 
     # ── 9. Save archive entry (runs always, including dry_run) ───────────────
     changed_files = save_archive_entry(paid_digest, datetime.date.today())
