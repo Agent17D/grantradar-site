@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Every weekly GrantSignal federal grant digest, permanently archived. Browse past issues and see what grants were matched each week.">
+  <meta property="og:title" content="GrantSignal — Past Digest Archives">
+  <meta property="og:description" content="Every weekly grant digest, permanently archived.">
+  <meta property="og:url" content="https://grantsignal.news/archive">
+  <meta property="og:type" content="website">
+  <title>GrantSignal — Past Digest Archives</title>
+  <style>
+    :root {
+      --navy:#0f3460;--blue:#1565c0;--blue-light:#4fc3f7;--teal:#00897b;--teal-light:#4db6ac;
+      --bg:#ffffff;--bg-alt:#f4f7fb;--text:#1a1a2e;--text-muted:#5a6a7a;--border:#dde4ed;
+      --radius:10px;--shadow:0 4px 24px rgba(15,52,96,0.10);
+    }
+    @media(prefers-color-scheme:dark){:root{--bg:#0d1b2a;--bg-alt:#13243a;--text:#e8f0fe;--text-muted:#8aacc8;--border:#1e3a5f;--shadow:0 4px 24px rgba(0,0,0,0.40);}}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px;}
+    a{color:var(--blue);text-decoration:none;}a:hover{text-decoration:underline;}
+    .container{max-width:900px;margin:0 auto;padding:0 24px;}
+    nav{background:var(--navy);padding:0 24px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.20);}
+    .nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px;}
+    .nav-logo{font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;text-decoration:none;}
+    .nav-logo .signal{color:var(--blue-light);}
+    .nav-links{display:flex;gap:24px;list-style:none;}
+    .nav-links a{color:#b0c4de;font-size:14px;font-weight:500;transition:color 0.2s;}
+    .nav-links a:hover{color:#fff;text-decoration:none;}
+    .nav-links a.active{color:#fff;}
+    .nav-cta{background:var(--teal);color:#fff!important;padding:7px 16px;border-radius:20px;font-weight:700!important;font-size:13px!important;}
+    .nav-cta:hover{background:var(--teal-light)!important;}
+    .hero{background:linear-gradient(150deg,var(--navy) 0%,#163d6e 60%,#1a4f6e 100%);padding:72px 24px 64px;text-align:center;position:relative;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 0%,rgba(79,195,247,0.12) 0%,transparent 70%);pointer-events:none;}
+    .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(79,195,247,0.15);border:1px solid rgba(79,195,247,0.30);color:var(--blue-light);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:20px;}
+    .hero h1{font-size:clamp(24px,5vw,40px);font-weight:800;color:#fff;line-height:1.2;max-width:600px;margin:0 auto 16px;letter-spacing:-0.5px;}
+    .hero p{font-size:clamp(14px,2.5vw,17px);color:#b0cce4;max-width:500px;margin:0 auto;line-height:1.6;}
+    .archive-section{padding:56px 24px;}
+    .section-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:10px;}
+    .section-title{font-size:clamp(20px,4vw,28px);font-weight:800;color:var(--text);line-height:1.25;margin-bottom:8px;}
+    .section-sub{font-size:15px;color:var(--text-muted);}
+    .archive-list{margin-top:36px;display:flex;flex-direction:column;gap:16px;}
+    .issue-card{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:24px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;box-shadow:var(--shadow);transition:border-color 0.2s,box-shadow 0.2s;}
+    .issue-card:hover{border-color:var(--blue);box-shadow:0 6px 28px rgba(21,101,192,0.14);}
+    .issue-info{flex:1;min-width:0;}
+    .issue-date{font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--teal);margin-bottom:4px;}
+    .issue-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .issue-meta{font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    .issue-grant-count{display:inline-flex;align-items:center;gap:5px;}
+    .issue-top-grants{font-size:12px;color:var(--text-muted);margin-top:6px;}
+    .issue-top-grants strong{color:var(--text);}
+    .btn-read{display:inline-block;background:var(--blue);color:#fff;font-size:13px;font-weight:700;padding:10px 20px;border-radius:6px;white-space:nowrap;transition:background 0.2s,transform 0.1s;flex-shrink:0;}
+    .btn-read:hover{background:#0d47a1;transform:translateY(-1px);text-decoration:none;}
+    .empty-state{text-align:center;padding:64px 24px;background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);margin-top:36px;}
+    .empty-state .empty-icon{font-size:48px;margin-bottom:16px;}
+    .empty-state h3{font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;}
+    .empty-state p{font-size:15px;color:var(--text-muted);max-width:400px;margin:0 auto 24px;}
+    .btn-primary{display:inline-block;background:var(--teal);color:#fff;font-size:15px;font-weight:700;padding:13px 28px;border-radius:6px;transition:background 0.2s,transform 0.1s;box-shadow:0 4px 16px rgba(0,137,123,0.30);}
+    .btn-primary:hover{background:#00796b;transform:translateY(-1px);text-decoration:none;}
+    .subscribe-section{background:linear-gradient(135deg,var(--navy) 0%,#163d6e 100%);padding:72px 24px;text-align:center;}
+    .subscribe-section .section-label{color:var(--teal-light);}
+    .subscribe-section .section-title{color:#fff;margin-bottom:10px;}
+    .subscribe-section .section-sub{color:#90b8d8;margin:0 auto 32px;max-width:500px;}
+    .subscribe-box{max-width:460px;margin:0 auto;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:24px;}
+    .subscribe-note{font-size:12px;color:#7fa8c8;margin-top:12px;}
+    footer{background:var(--navy);padding:48px 24px 32px;color:#90a8c0;font-size:13px;}
+    .footer-inner{max-width:900px;margin:0 auto;}
+    .footer-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:32px;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:24px;}
+    .footer-brand-name{font-size:18px;font-weight:800;color:#fff;margin-bottom:6px;}
+    .footer-brand-name span{color:var(--blue-light);}
+    .footer-tagline{font-size:12px;color:#607d96;}
+    .footer-links-group h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#607d96;margin-bottom:10px;}
+    .footer-links-group ul{list-style:none;}
+    .footer-links-group li{margin-bottom:7px;}
+    .footer-links-group a{color:#90a8c0;font-size:13px;}
+    .footer-links-group a:hover{color:#fff;text-decoration:none;}
+    .footer-bottom{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;}
+    .footer-address{font-size:11px;color:#4a6278;line-height:1.7;}
+    .footer-copy{font-size:11px;color:#4a6278;}
+    #loading{text-align:center;padding:40px;color:var(--text-muted);font-size:15px;}
+    @media(max-width:600px){.nav-links{display:none;}.hero{padding:52px 20px 48px;}.archive-section{padding:40px 20px;}.issue-card{flex-direction:column;align-items:flex-start;}.subscribe-section{padding:52px 20px;}.footer-top{flex-direction:column;}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="https://grantsignal.news" class="nav-logo">📡 Grant<span class="signal">Signal</span></a>
+    <ul class="nav-links">
+      <li><a href="https://grantsignal.news/#how-it-works">How it works</a></li>
+      <li><a href="https://grantsignal.news/#features">Features</a></li>
+      <li><a href="https://grantsignal.news/#pricing">Pricing</a></li>
+      <li><a href="https://grantsignal.news/archive" class="active">Past Digests</a></li>
+      <li><a href="https://dereks-newsletter-be7bae.beehiiv.com/subscribe" target="_blank" class="nav-cta">Subscribe Free →</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">📚 Archive</div>
+    <h1>Past Digest Archives</h1>
+    <p>Every weekly grant digest, permanently archived.</p>
+  </div>
+</section>
+
+<section class="archive-section">
+  <div class="container">
+    <div class="section-label">All Issues</div>
+    <h2 class="section-title">Browse Past Digests</h2>
+    <p class="section-sub">Federal grant opportunities curated and scored for nonprofits and schools — every Tuesday, since we launched.</p>
+
+    <div id="archive-list" class="archive-list">
+      <div id="loading">Loading digest archive…</div>
+    </div>
+  </div>
+</section>
+
+<section class="subscribe-section" id="subscribe">
+  <div class="container">
+    <div class="section-label">Free to join</div>
+    <h2 class="section-title">Get the next digest in your inbox</h2>
+    <p class="section-sub">Join nonprofit leaders and grant writers who use GrantSignal to stay ahead of federal funding opportunities.</p>
+    <div class="subscribe-box">
+      <a href="https://dereks-newsletter-be7bae.beehiiv.com/subscribe" target="_blank" class="btn-primary" style="display:inline-block;font-size:16px;padding:16px 36px;width:100%;text-align:center;">
+        Subscribe Free — No Credit Card →
+      </a>
+      <p class="subscribe-note">✓ Free forever &nbsp;·&nbsp; ✓ Unsubscribe anytime &nbsp;·&nbsp; ✓ No spam</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand-name">📡 Grant<span>Signal</span></div>
+        <div class="footer-tagline">Federal Grant Discovery for Nonprofits &amp; Schools</div>
+      </div>
+      <div class="footer-links-group">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="https://grantsignal.news/#features">Features</a></li>
+          <li><a href="https://grantsignal.news/#pricing">Pricing</a></li>
+          <li><a href="https://grantsignal.news/archive">Past Digests</a></li>
+          <li><a href="https://dereks-newsletter-be7bae.beehiiv.com/subscribe" target="_blank">Subscribe</a></li>
+        </ul>
+      </div>
+      <div class="footer-links-group">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="/privacy">Privacy Policy</a></li>
+          <li><a href="/terms">Terms of Service</a></li>
+          <li><a href="mailto:southerneatsai@gmail.com">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-links-group">
+        <h4>Data</h4>
+        <ul>
+          <li><a href="https://www.grants.gov" target="_blank">Grants.gov</a></li>
+          <li><a href="https://grantsignal.news/archive">Digest Archive</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-address">
+        GrantSignal &nbsp;·&nbsp; 1401 Westbank Expressway, Suite 109, Westwego, LA 70094<br>
+        GrantSignal curates publicly available federal grant data from Grants.gov.<br>
+        Not affiliated with any U.S. federal agency. Not legal or financial advice.
+      </div>
+      <div class="footer-copy">© 2026 GrantSignal. All rights reserved.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  const listEl = document.getElementById('archive-list');
+
+  function formatDate(dateStr) {
+    // dateStr: "2026-04-01"
+    try {
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const d = new Date(year, month - 1, day);
+      return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    } catch(e) {
+      return dateStr;
+    }
+  }
+
+  function renderIssues(issues) {
+    listEl.innerHTML = '';
+
+    if (!issues || issues.length === 0) {
+      listEl.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">📬</div>
+          <h3>First digest coming Tuesday</h3>
+          <p>Subscribe now to get it in your inbox the moment it drops — curated federal grants for nonprofits and schools.</p>
+          <a href="https://dereks-newsletter-be7bae.beehiiv.com/subscribe" target="_blank" class="btn-primary">Subscribe Free →</a>
+        </div>`;
+      return;
+    }
+
+    issues.forEach(function(issue) {
+      const topGrantsHtml = (issue.top_grants && issue.top_grants.length > 0)
+        ? `<div class="issue-top-grants"><strong>Featured:</strong> ${issue.top_grants.slice(0, 2).join(' · ')}</div>`
+        : '';
+
+      const card = document.createElement('div');
+      card.className = 'issue-card';
+      card.innerHTML = `
+        <div class="issue-info">
+          <div class="issue-date">${formatDate(issue.date)}</div>
+          <div class="issue-title">${escapeHtml(issue.title)}</div>
+          <div class="issue-meta">
+            <span class="issue-grant-count">📋 ${issue.grant_count || 0} grants matched</span>
+          </div>
+          ${topGrantsHtml}
+        </div>
+        <a href="/archive/${escapeHtml(issue.slug)}.html" class="btn-read">Read Issue →</a>`;
+      listEl.appendChild(card);
+    });
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  fetch('issues.json')
+    .then(function(r) {
+      if (!r.ok) throw new Error('Failed to load issues.json');
+      return r.json();
+    })
+    .then(function(data) {
+      renderIssues(Array.isArray(data) ? data : []);
+    })
+    .catch(function(err) {
+      console.error('Archive load error:', err);
+      renderIssues([]);
+    });
+})();
+</script>
+
+</body>
+</html>
