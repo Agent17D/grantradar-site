@@ -16,6 +16,7 @@ import os
 import sys
 import json
 import math
+import random
 import datetime
 import requests
 
@@ -34,7 +35,7 @@ GRANTS_GOV_ENDPOINT = "https://api.grants.gov/v1/api/search2"
 MAX_PAID_GRANTS = 50
 
 # Minimum fit score (out of 5) to include a grant at all
-MIN_SCORE = 1
+MIN_SCORE = 2
 
 # Days before close date that triggers the urgency flag
 URGENCY_DAYS = 14
@@ -46,6 +47,32 @@ TEAL  = "#00897b"
 
 # Archive directory (relative to repo root, where GitHub Actions runs)
 _ARCHIVE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "archive")
+
+# ---------------------------------------------------------------------------
+# Exclusion filters — grants almost never relevant to small nonprofits
+# ---------------------------------------------------------------------------
+
+# Title patterns that indicate research/academic grants to exclude
+EXCLUDE_TITLE_PATTERNS = [
+    "R25", "R01", "R03", "R21", "R34", "K08", "K23", "F31", "F32", "T32",
+    "Clinical Trial", "Dissertation", "Fellowship", "Postdoctoral",
+    "Career Development Award",
+]
+
+# Agency name patterns that indicate research agencies
+RESEARCH_AGENCY_PATTERNS = [
+    "NIH",
+    "National Cancer Institute",
+    "National Heart",
+    "National Institute of",
+    "AHRQ",
+]
+
+# Keywords that make a research-agency grant worth KEEPING (community focus)
+COMMUNITY_RELEVANCE_KEYWORDS = [
+    "community", "nonprofit", "school", "education",
+    "prevention", "outreach", "public health",
+]
 
 # ---------------------------------------------------------------------------
 # Eligibility filter keywords
@@ -103,6 +130,18 @@ SCORING_CATEGORIES = {
                               "low-income", "low income", "underserved"],
 }
 
+# ---------------------------------------------------------------------------
+# Grant writing tips — rotated randomly in paid digest
+# ---------------------------------------------------------------------------
+
+GRANT_WRITING_TIPS = [
+    "Always read the full NOFO before starting your application. Eligibility requirements are often buried in Section C.",
+    "Federal grants require a DUNS/UEI number and SAM.gov registration. Make sure yours is active — it can take 2-3 weeks to process.",
+    "Deadline means RECEIVED by deadline, not postmarked. Submit at least 48 hours early to avoid technical issues.",
+    "Match requirements are common in federal grants — know your organization's in-kind and cash match capacity before applying.",
+    "Start with smaller grants ($25K-$100K) to build a track record. Federal agencies favor organizations with prior federal award experience.",
+]
+
 
 # ---------------------------------------------------------------------------
 # Step 1: Fetch grants from Grants.gov
@@ -111,6 +150,9 @@ SCORING_CATEGORIES = {
 def fetch_grants(max_records: int = 500) -> list[dict]:
     """
     POST to the Grants.gov search2 API and return a flat list of opportunity dicts.
+    Each hit contains fields at the TOP LEVEL of the oppHits entry:
+      id, oppNumber, title, agencyName, openDate, closeDate,
+      fundingCategory, eligibilities, synopsis, awardCeiling
     Paginates automatically until max_records is reached or results are exhausted.
     """
     print(f"[grants.gov] Fetching posted grants (max {max_records})…")
@@ -123,10 +165,10 @@ def fetch_grants(max_records: int = 500) -> list[dict]:
             "oppStatuses": "posted",
             "rows": page_size,
             "startRecord": offset,
-            # Request all fields we need
+            # Request all fields we need (all returned at top level of each oppHit)
             "fields": (
                 "id,oppNumber,title,agencyName,openDate,closeDate,"
-                "fundingCategory,eligibilities,synopsis"
+                "fundingCategory,eligibilities,synopsis,awardCeiling"
             ),
         }
 
@@ -162,12 +204,61 @@ def fetch_grants(max_records: int = 500) -> list[dict]:
 # Step 2: Filter for nonprofit / school eligibility
 # ---------------------------------------------------------------------------
 
+def _is_research_agency(agency: str) -> bool:
+    """Return True if the agency name matches known research/medical agency patterns."""
+    agency_upper = agency.upper()
+    for pattern in RESEARCH_AGENCY_PATTERNS:
+        if pattern.upper() in agency_upper:
+            return True
+    return False
+
+
+def _has_community_relevance(title: str, synopsis: str) -> bool:
+    """Return True if title or synopsis contains community-relevant keywords."""
+    text = (title + " " + synopsis).lower()
+    return any(kw.lower() in text for kw in COMMUNITY_RELEVANCE_KEYWORDS)
+
+
 def is_eligible(grant: dict) -> bool:
     """
     Return True if the grant appears eligible for nonprofits or schools.
-    We check the structured eligibilities field AND scan title/synopsis text.
+
+    Field mapping (all at top level of Grants.gov oppHits entries):
+      - title:      grant.get("title")
+      - agencyName: grant.get("agencyName")
+      - synopsis:   grant.get("synopsis")
+      - closeDate:  grant.get("closeDate")
+      - openDate:   grant.get("openDate")
+      - oppNumber:  grant.get("oppNumber")
+      - id:         grant.get("id")
+
+    We check structured eligibilities AND scan title/synopsis free-text.
+    We also apply exclusion rules for research/academic grants.
     """
-    # Check structured eligibilities list
+    # --- Field access (all top-level per Grants.gov API) ---
+    title    = grant.get("title",      "") or ""
+    synopsis = grant.get("synopsis",   "") or ""
+    agency   = grant.get("agencyName", "") or ""
+
+    # --- EXCLUSION: title pattern filter ---
+    title_lower = title.lower()
+    for pattern in EXCLUDE_TITLE_PATTERNS:
+        # Match whole-word for short codes (R25, R01, etc.) to avoid false positives
+        if len(pattern) <= 3:
+            # Check as standalone word or at end of title segment like "(R25)"
+            import re
+            if re.search(r'\b' + re.escape(pattern) + r'\b', title, re.IGNORECASE):
+                return False
+        else:
+            if pattern.lower() in title_lower:
+                return False
+
+    # --- EXCLUSION: research agency filter (unless community-focused) ---
+    if _is_research_agency(agency):
+        if not _has_community_relevance(title, synopsis):
+            return False
+
+    # --- INCLUSION: Check structured eligibilities list ---
     eligibilities = grant.get("eligibilities", []) or []
     for elig in eligibilities:
         label = (elig.get("label", "") or "").lower()
@@ -179,12 +270,8 @@ def is_eligible(grant: dict) -> bool:
         if "unrestricted" in label or "unrestricted" in code:
             return True
 
-    # Fall back to free-text scan
-    text = " ".join([
-        grant.get("title",    "") or "",
-        grant.get("synopsis", "") or "",
-    ]).lower()
-
+    # --- INCLUSION: Fall back to free-text scan ---
+    text = (title + " " + synopsis).lower()
     for kw in NONPROFIT_KEYWORDS:
         if kw in text:
             return True
@@ -198,35 +285,59 @@ def is_eligible(grant: dict) -> bool:
 
 def score_grant(grant: dict) -> float:
     """
-    Score a grant 1–5 based on keyword matches across relevance categories.
-    Higher score = more relevant to typical GrantSignal audience.
+    Score a grant on a 0–5 scale based on keyword matches and relevance signals.
 
     Scoring logic:
-    - Every matching category contributes +1 (up to the number of categories = 8)
-    - Raw score is normalised to 1–5 scale
-    - Bonus +0.5 if the word "nonprofit" or "community" appears in title/synopsis
+    - Base score: 2.0 (all eligible grants start here)
+    - +up to 3.0 for keyword category matches (normalised across 8 categories)
+    - +1.0 if "nonprofit" or "community organization" appears anywhere
+    - +0.5 if award ceiling is under $500K (more accessible)
+    - +1.0 if closing within 60 days (time-sensitive)
+    - Cap at 5.0
+    - Minimum to include: MIN_SCORE (2.0)
     """
-    text = " ".join([
-        grant.get("title",    "") or "",
-        grant.get("synopsis", "") or "",
-        grant.get("agencyName", "") or "",
-    ]).lower()
+    title    = grant.get("title",        "") or ""
+    synopsis = grant.get("synopsis",     "") or ""
+    agency   = grant.get("agencyName",   "") or ""
+    close_dt = grant.get("closeDate",    "") or ""
+    award    = grant.get("awardCeiling", None)
 
+    text = (title + " " + synopsis + " " + agency).lower()
+
+    # Base score
+    score = 2.0
+
+    # Keyword category matching (up to +3)
     matched_categories = 0
     for _category, keywords in SCORING_CATEGORIES.items():
         if any(kw in text for kw in keywords):
             matched_categories += 1
 
-    # Map matched_categories (0–8) → raw 0–4, then +1 for 1-based scale
     raw = matched_categories / len(SCORING_CATEGORIES)  # 0.0–1.0
-    score = 1 + raw * 4  # 1.0–5.0
+    score += raw * 3.0  # up to +3
 
-    # Bonus for explicit nonprofit / community language in the title
-    title_lower = (grant.get("title", "") or "").lower()
-    if any(kw in title_lower for kw in ["nonprofit", "non-profit", "community", "501(c)"]):
-        score = min(5.0, score + 0.5)
+    # Bonus: explicit nonprofit / community organization language
+    if "nonprofit" in text or "community organization" in text:
+        score += 1.0
 
-    return round(score, 1)
+    # Bonus: award amount under $500K (more accessible for small nonprofits)
+    try:
+        if award is not None and float(str(award).replace(",", "")) < 500_000:
+            score += 0.5
+    except (ValueError, TypeError):
+        pass
+
+    # Bonus: closing within 60 days (time-sensitive = more relevant to show)
+    if close_dt:
+        try:
+            close_date = datetime.datetime.strptime(close_dt, "%m/%d/%Y").date()
+            days_left = (close_date - datetime.date.today()).days
+            if 0 <= days_left <= 60:
+                score += 1.0
+        except ValueError:
+            pass
+
+    return round(min(5.0, score), 1)
 
 
 # ---------------------------------------------------------------------------
@@ -263,20 +374,51 @@ def build_digests(grants: list[dict]) -> tuple[list[dict], list[dict]]:
 # Helpers: formatting utilities
 # ---------------------------------------------------------------------------
 
-def stars(score: float) -> str:
-    """Convert numeric score to emoji star string."""
-    full  = int(score)
-    half  = 1 if (score - full) >= 0.5 else 0
-    empty = 5 - full - half
-    return "⭐" * full + ("✨" if half else "") + "☆" * empty
+def stars_html(score: float) -> tuple[str, str, str]:
+    """
+    Returns (stars_html_str, match_label, label_color) based on score.
+    Uses ★ (filled, gold #f4a800) and ☆ (empty, light gray).
+    """
+    filled = '<span style="color:#f4a800;">&#9733;</span>'  # ★
+    empty  = '<span style="color:#cccccc;">&#9734;</span>'  # ☆
+
+    if score >= 4.5:
+        stars_str = filled * 5
+        label     = "Excellent Match"
+        color     = TEAL
+    elif score >= 3.5:
+        stars_str = filled * 4 + empty
+        label     = "Strong Match"
+        color     = BLUE
+    elif score >= 2.5:
+        stars_str = filled * 3 + empty * 2
+        label     = "Good Match"
+        color     = "#5a6a7a"
+    else:
+        stars_str = filled * 2 + empty * 3
+        label     = "Possible Match"
+        color     = "#9e9e9e"
+
+    return stars_str, label, color
+
+
+def is_urgent(close_date_str: str) -> bool:
+    """Return True if grant closes within URGENCY_DAYS days."""
+    if not close_date_str:
+        return False
+    try:
+        close_dt = datetime.datetime.strptime(close_date_str, "%m/%d/%Y").date()
+        days_left = (close_dt - datetime.date.today()).days
+        return 0 <= days_left <= URGENCY_DAYS
+    except ValueError:
+        return False
 
 
 def urgency_flag(close_date_str: str) -> str:
-    """Return ⚡ if grant closes within URGENCY_DAYS days, else ''."""
+    """Return urgency string if grant closes within URGENCY_DAYS days, else ''."""
     if not close_date_str:
         return ""
     try:
-        # Grants.gov closeDate format: "MM/DD/YYYY"
         close_dt = datetime.datetime.strptime(close_date_str, "%m/%d/%Y").date()
         days_left = (close_dt - datetime.date.today()).days
         if 0 <= days_left <= URGENCY_DAYS:
@@ -294,123 +436,143 @@ def grants_gov_url(opp_number: str) -> str:
 # Step 5a: Build FREE HTML email
 # ---------------------------------------------------------------------------
 
-FREE_UPGRADE_CTA = """
-<div style="background:#e8f5e9;border-left:4px solid {teal};padding:16px 20px;
-            margin:24px 0;border-radius:4px;">
-  <p style="margin:0;color:#1b5e20;font-size:15px;">
-    <strong>👋 Want the full list?</strong> This week we matched
-    <strong>{total}</strong> federal grants for nonprofits and schools.
-    Free subscribers see the top 3. Upgrade to see all {total} with full
-    details, agency contacts, and priority scores.
-  </p>
-  <p style="margin:12px 0 0;">
-    <a href="https://grantsignal.news/upgrade"
-       style="background:{blue};color:#fff;padding:10px 20px;
-              border-radius:4px;text-decoration:none;font-weight:bold;
-              display:inline-block;">
-      Upgrade to Full Access →
-    </a>
-  </p>
-</div>
-""".format(teal=TEAL, blue=BLUE, total="{total}")  # {total} filled later
-
-
-def build_free_html(grants: list[dict], total_matched: int) -> str:
+def build_free_html(grants: list[dict], total_matched: int, urgency_count: int = 0) -> str:
     week_str = datetime.date.today().strftime("%B %d, %Y")
+
     grant_cards = ""
 
     for grant in grants:
-        score     = grant.get("_score", 0)
-        title     = grant.get("title",      "Untitled") or "Untitled"
-        agency    = grant.get("agencyName", "Unknown Agency") or "Unknown Agency"
-        close_dt  = grant.get("closeDate",  "") or ""
-        opp_num   = grant.get("oppNumber",  "") or ""
-        synopsis  = (grant.get("synopsis",  "") or "")[:300]
-        urgency   = urgency_flag(close_dt)
-        url       = grants_gov_url(opp_num) if opp_num else "https://www.grants.gov"
+        score    = grant.get("_score", 0)
+        title    = grant.get("title",      "Untitled") or "Untitled"
+        agency   = grant.get("agencyName", "Unknown Agency") or "Unknown Agency"
+        close_dt = grant.get("closeDate",  "") or ""
+        opp_num  = grant.get("oppNumber",  "") or ""
+        synopsis_raw = (grant.get("synopsis", "") or "")
+        synopsis = synopsis_raw[:120]
+        urgent   = is_urgent(close_dt)
+        url      = grants_gov_url(opp_num) if opp_num else "https://www.grants.gov"
 
-        urgency_html = (
-            f'<span style="color:#e65100;font-weight:bold;margin-left:8px;">'
-            f'{urgency}</span>'
-        ) if urgency else ""
+        border_color = "#e53935" if urgent else "#00897b"
+        stars_str, match_label, match_color = stars_html(score)
+
+        if urgent:
+            close_html = (
+                f'<span style="color:#e53935;font-weight:bold;">'
+                f'&#9889; Closes {close_dt} &mdash; URGENT</span>'
+            )
+        else:
+            close_html = f'&#128197; Closes {close_dt or "See listing"}'
+
+        synopsis_display = synopsis + ("..." if len(synopsis_raw) > 120 else "")
 
         grant_cards += f"""
-        <div style="border:1px solid #e0e0e0;border-radius:6px;padding:16px 20px;
-                    margin:0 0 16px;background:#fff;">
-          <div style="font-size:13px;color:{TEAL};font-weight:600;
-                      text-transform:uppercase;letter-spacing:.5px;
-                      margin-bottom:4px;">{agency}</div>
-          <h3 style="margin:0 0 8px;font-size:17px;color:{NAVY};">
-            <a href="{url}" style="color:{NAVY};text-decoration:none;">{title}</a>
-          </h3>
-          <div style="margin-bottom:8px;">
-            <span style="font-size:18px;">{stars(score)}</span>
-            <span style="color:#555;font-size:13px;margin-left:6px;">
-              Fit Score: {score}/5
-            </span>
-            {urgency_html}
+        <div style="background:#ffffff;border-radius:10px;
+                    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+                    margin:0 0 16px 0;padding:20px 24px;
+                    border-left:4px solid {border_color};">
+          <div style="font-size:15px;font-weight:bold;color:#0f3460;
+                      margin-bottom:6px;line-height:1.4;">{title}</div>
+          <div style="font-size:12px;color:#1565c0;margin-bottom:8px;">
+            &#127963; {agency}
           </div>
-          <p style="color:#444;font-size:14px;line-height:1.6;margin:0 0 10px;">
-            {synopsis}{"…" if len(synopsis) == 300 else ""}
-          </p>
-          <div style="font-size:13px;color:#666;">
-            Closes: <strong>{close_dt or "See listing"}</strong>
-            &nbsp;·&nbsp;
-            <a href="{url}" style="color:{BLUE};">View on Grants.gov →</a>
+          <div style="margin-bottom:8px;font-size:14px;">
+            {stars_str}
+            <span style="font-size:12px;color:{match_color};
+                         margin-left:6px;font-weight:600;">{match_label}</span>
+          </div>
+          <div style="font-size:13px;color:#444;margin-bottom:8px;">
+            {close_html}
+          </div>
+          <div style="font-size:13px;color:#5a6a7a;line-height:1.6;
+                      margin-bottom:14px;">{synopsis_display}</div>
+          <div>
+            <a href="{url}"
+               style="display:inline-block;background:#00897b;color:#ffffff;
+                      font-size:13px;font-weight:bold;padding:8px 18px;
+                      border-radius:6px;text-decoration:none;">
+              View on Grants.gov &rarr;
+            </a>
           </div>
         </div>"""
 
-    upgrade_block = FREE_UPGRADE_CTA.format(total=total_matched)
+    upgrade_cta = f"""
+    <div style="background:#0f3460;border-radius:10px;padding:24px 28px;margin:8px 0 0 0;">
+      <div style="color:#ffffff;font-size:15px;font-weight:600;margin-bottom:8px;">
+        You're seeing 3 of {total_matched} grants matched this week
+      </div>
+      <div style="color:#90a8c0;font-size:13px;line-height:1.5;margin-bottom:18px;">
+        Upgrade to Basic to see all {total_matched} opportunities &mdash;
+        including {urgency_count} closing soon
+      </div>
+      <a href="https://dereks-newsletter-be7bae.beehiiv.com/upgrade"
+         style="display:inline-block;background:#00897b;color:#ffffff;
+                font-size:15px;font-weight:bold;padding:12px 28px;
+                border-radius:8px;text-decoration:none;">
+        Upgrade for $29/month &rarr;
+      </a>
+    </div>"""
 
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>GrantSignal | Top 3 Federal Grants This Week</title>
+  <title>&#128225; GrantSignal | Your Top 3 Federal Grant Matches This Week</title>
 </head>
-<body style="margin:0;padding:0;background:#f5f5f5;font-family:'Helvetica Neue',
-             Arial,sans-serif;color:#222;">
-  <div style="max-width:620px;margin:0 auto;background:#fff;
-              border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+<body style="margin:0;padding:0;background:#f4f7fb;
+             font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+             color:#222222;">
+
+  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
 
     <!-- Header -->
-    <div style="background:{NAVY};padding:28px 32px;">
-      <div style="color:{TEAL};font-size:13px;font-weight:600;
-                  text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">
-        📡 GrantSignal
-      </div>
-      <h1 style="color:#fff;margin:0;font-size:24px;font-weight:700;">
-        Top 3 Federal Grants This Week
-      </h1>
-      <div style="color:#90caf9;font-size:13px;margin-top:8px;">
-        Week of {week_str}
-      </div>
+    <table width="100%" cellpadding="0" cellspacing="0"
+           style="background:#0f3460;border-radius:10px 10px 0 0;">
+      <tr>
+        <td style="padding:22px 28px;">
+          <div style="color:#ffffff;font-size:22px;font-weight:bold;
+                      line-height:1.2;">&#128225; GrantSignal</div>
+          <div style="color:#4fc3f7;font-size:12px;margin-top:4px;">
+            Federal Grant Intelligence
+          </div>
+        </td>
+        <td align="right" style="padding:22px 28px;vertical-align:top;">
+          <div style="color:#90a8c0;font-size:12px;white-space:nowrap;">
+            {week_str}
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Intro -->
+    <div style="background:#ffffff;padding:18px 28px;
+                border-bottom:1px solid #e8eef4;">
+      <p style="margin:0;font-size:14px;color:#5a6a7a;line-height:1.6;">
+        Good morning &mdash; here are your top 3 federal grant matches this week,
+        selected for nonprofits and schools like yours.
+      </p>
     </div>
 
-    <!-- Body -->
-    <div style="padding:28px 32px;">
-      <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">
-        Here are this week's top-scoring federal grant opportunities for nonprofits
-        and schools — curated and scored by GrantSignal.
-      </p>
-
+    <!-- Grant Cards -->
+    <div style="background:#f4f7fb;padding:20px 16px;">
       {grant_cards}
-
-      {upgrade_block}
+      {upgrade_cta}
     </div>
 
     <!-- Footer -->
-    <div style="background:#f5f5f5;padding:20px 32px;font-size:12px;
-                color:#888;border-top:1px solid #e0e0e0;">
-      <p style="margin:0 0 6px;">
-        You're receiving this because you subscribed to GrantSignal.
-      </p>
-      <p style="margin:0;">
-        <a href="{{{{unsubscribe_url}}}}" style="color:{TEAL};">Unsubscribe</a>
-        &nbsp;·&nbsp;
-        <a href="https://grantsignal.news" style="color:{TEAL};">grantsignal.news</a>
-      </p>
+    <div style="background:#e8eef4;padding:16px 28px;
+                border-radius:0 0 10px 10px;text-align:center;">
+      <div style="font-size:13px;color:#5a6a7a;font-weight:600;">
+        &#128225; GrantSignal &middot; grantsignal.news
+      </div>
+      <div style="font-size:12px;color:#8a9ab0;margin-top:6px;line-height:1.5;">
+        You're receiving this because you subscribed to GrantSignal's free tier.
+      </div>
+      <div style="font-size:12px;margin-top:10px;">
+        <a href="{{{{unsubscribe_url}}}}" style="color:#00897b;text-decoration:underline;">
+          Unsubscribe
+        </a>
+      </div>
     </div>
 
   </div>
@@ -423,111 +585,138 @@ def build_free_html(grants: list[dict], total_matched: int) -> str:
 # ---------------------------------------------------------------------------
 
 def build_paid_html(grants: list[dict]) -> str:
-    week_str = datetime.date.today().strftime("%B %d, %Y")
-    count    = len(grants)
+    week_str  = datetime.date.today().strftime("%B %d, %Y")
+    count     = len(grants)
+    tip       = random.choice(GRANT_WRITING_TIPS)
+
     grant_cards = ""
 
-    for i, grant in enumerate(grants, start=1):
+    for grant in grants:
         score    = grant.get("_score", 0)
         title    = grant.get("title",      "Untitled") or "Untitled"
         agency   = grant.get("agencyName", "Unknown Agency") or "Unknown Agency"
         close_dt = grant.get("closeDate",  "") or ""
         opp_num  = grant.get("oppNumber",  "") or ""
-        synopsis = (grant.get("synopsis",  "") or "")[:400]
-        urgency  = urgency_flag(close_dt)
+        synopsis_raw = (grant.get("synopsis", "") or "")
+        synopsis = synopsis_raw[:120]
+        urgent   = is_urgent(close_dt)
         url      = grants_gov_url(opp_num) if opp_num else "https://www.grants.gov"
 
-        border_color = TEAL if score >= 4.0 else ("#1565c0" if score >= 3.0 else "#bdbdbd")
+        border_color = "#e53935" if urgent else "#00897b"
+        stars_str, match_label, match_color = stars_html(score)
 
-        urgency_html = (
-            f'<div style="display:inline-block;background:#fff3e0;color:#e65100;'
-            f'font-size:12px;font-weight:bold;padding:3px 8px;border-radius:3px;'
-            f'margin-left:8px;">{urgency}</div>'
-        ) if urgency else ""
+        if urgent:
+            close_html = (
+                f'<span style="color:#e53935;font-weight:bold;">'
+                f'&#9889; Closes {close_dt} &mdash; URGENT</span>'
+            )
+        else:
+            close_html = f'&#128197; Closes {close_dt or "See listing"}'
+
+        synopsis_display = synopsis + ("..." if len(synopsis_raw) > 120 else "")
 
         grant_cards += f"""
-        <div style="border-left:4px solid {border_color};padding:16px 20px;
-                    margin:0 0 20px;background:#fafafa;border-radius:0 6px 6px 0;">
-          <div style="display:flex;align-items:center;flex-wrap:wrap;
-                      margin-bottom:6px;gap:6px;">
-            <span style="font-size:11px;background:{NAVY};color:#fff;
-                         padding:2px 8px;border-radius:3px;font-weight:600;">
-              #{i}
-            </span>
-            <span style="font-size:13px;color:{TEAL};font-weight:600;">{agency}</span>
-            {urgency_html}
+        <div style="background:#ffffff;border-radius:10px;
+                    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+                    margin:0 0 16px 0;padding:20px 24px;
+                    border-left:4px solid {border_color};">
+          <div style="font-size:15px;font-weight:bold;color:#0f3460;
+                      margin-bottom:6px;line-height:1.4;">{title}</div>
+          <div style="font-size:12px;color:#1565c0;margin-bottom:8px;">
+            &#127963; {agency}
           </div>
-          <h3 style="margin:0 0 8px;font-size:16px;color:{NAVY};">
-            <a href="{url}" style="color:{NAVY};text-decoration:none;">{title}</a>
-          </h3>
-          <div style="margin-bottom:10px;">
-            <span style="font-size:17px;">{stars(score)}</span>
-            <span style="color:#555;font-size:13px;margin-left:6px;">
-              Fit Score: <strong>{score}</strong> / 5
-            </span>
+          <div style="margin-bottom:8px;font-size:14px;">
+            {stars_str}
+            <span style="font-size:12px;color:{match_color};
+                         margin-left:6px;font-weight:600;">{match_label}</span>
           </div>
-          <p style="color:#444;font-size:14px;line-height:1.6;margin:0 0 10px;">
-            {synopsis}{"…" if len(synopsis) == 400 else ""}
-          </p>
-          <div style="font-size:13px;color:#666;">
-            Closes: <strong>{close_dt or "See listing"}</strong>
-            &nbsp;·&nbsp;
-            <a href="{url}" style="color:{BLUE};">View full listing →</a>
+          <div style="font-size:13px;color:#444;margin-bottom:8px;">
+            {close_html}
+          </div>
+          <div style="font-size:13px;color:#5a6a7a;line-height:1.6;
+                      margin-bottom:14px;">{synopsis_display}</div>
+          <div>
+            <a href="{url}"
+               style="display:inline-block;background:#00897b;color:#ffffff;
+                      font-size:13px;font-weight:bold;padding:8px 18px;
+                      border-radius:6px;text-decoration:none;">
+              View on Grants.gov &rarr;
+            </a>
           </div>
         </div>"""
+
+    tip_section = f"""
+    <div style="background:#e3f2fd;border-radius:10px;padding:20px 24px;margin:8px 0 0 0;">
+      <div style="font-size:15px;font-weight:bold;color:#0f3460;margin-bottom:10px;">
+        &#128161; This Week's Tip
+      </div>
+      <div style="font-size:14px;color:#1565c0;line-height:1.6;">{tip}</div>
+    </div>"""
 
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>GrantSignal | {count} Federal Grant Matches This Week</title>
+  <title>&#128225; GrantSignal | Full Weekly Digest &mdash; {count} Grants Matched</title>
 </head>
-<body style="margin:0;padding:0;background:#f5f5f5;font-family:'Helvetica Neue',
-             Arial,sans-serif;color:#222;">
-  <div style="max-width:640px;margin:0 auto;background:#fff;
-              border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+<body style="margin:0;padding:0;background:#f4f7fb;
+             font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+             color:#222222;">
+
+  <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
 
     <!-- Header -->
-    <div style="background:{NAVY};padding:28px 32px;">
-      <div style="color:{TEAL};font-size:13px;font-weight:600;
-                  text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">
-        📡 GrantSignal — Full Member Digest
-      </div>
-      <h1 style="color:#fff;margin:0;font-size:24px;font-weight:700;">
-        {count} Federal Grant Matches This Week
-      </h1>
-      <div style="color:#90caf9;font-size:13px;margin-top:8px;">
-        Week of {week_str} &nbsp;·&nbsp; Sorted by Fit Score (highest first)
-      </div>
+    <table width="100%" cellpadding="0" cellspacing="0"
+           style="background:#0f3460;border-radius:10px 10px 0 0;">
+      <tr>
+        <td style="padding:22px 28px;">
+          <div style="color:#ffffff;font-size:22px;font-weight:bold;
+                      line-height:1.2;">&#128225; GrantSignal</div>
+          <div style="color:#4fc3f7;font-size:12px;margin-top:4px;">
+            Full Weekly Digest &mdash; {count} Grants Matched
+          </div>
+        </td>
+        <td align="right" style="padding:22px 28px;vertical-align:top;">
+          <div style="color:#90a8c0;font-size:12px;white-space:nowrap;">
+            {week_str}
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Intro -->
+    <div style="background:#ffffff;padding:18px 28px;
+                border-bottom:1px solid #e8eef4;">
+      <p style="margin:0;font-size:14px;color:#5a6a7a;line-height:1.6;">
+        Your full weekly digest of federal grant matches, sorted by relevance score.
+        {count} opportunities matched this week for nonprofits and schools.
+      </p>
     </div>
 
-    <!-- Legend -->
-    <div style="background:#e8eaf6;padding:12px 32px;font-size:13px;color:#444;
-                border-bottom:1px solid #ddd;">
-      ⭐⭐⭐⭐⭐ = Perfect fit &nbsp;·&nbsp;
-      ⚡ = Closes within 14 days &nbsp;·&nbsp;
-      Ranked by relevance to nonprofits &amp; schools
-    </div>
-
-    <!-- Body -->
-    <div style="padding:28px 32px;">
+    <!-- Grant Cards -->
+    <div style="background:#f4f7fb;padding:20px 16px;">
       {grant_cards}
+      {tip_section}
     </div>
 
     <!-- Footer -->
-    <div style="background:#f5f5f5;padding:20px 32px;font-size:12px;
-                color:#888;border-top:1px solid #e0e0e0;">
-      <p style="margin:0 0 6px;">
-        You're a GrantSignal full member — you receive every matched grant.
-      </p>
-      <p style="margin:0;">
-        <a href="{{{{unsubscribe_url}}}}" style="color:{TEAL};">Unsubscribe</a>
-        &nbsp;·&nbsp;
-        <a href="https://grantsignal.news" style="color:{TEAL};">grantsignal.news</a>
-        &nbsp;·&nbsp;
-        <a href="https://grantsignal.news/archive" style="color:{TEAL};">Archive</a>
-      </p>
+    <div style="background:#e8eef4;padding:16px 28px;
+                border-radius:0 0 10px 10px;text-align:center;">
+      <div style="font-size:13px;color:#5a6a7a;font-weight:600;">
+        &#128225; GrantSignal &middot; grantsignal.news
+      </div>
+      <div style="font-size:12px;color:#8a9ab0;margin-top:6px;line-height:1.5;">
+        Full digest &mdash; Basic/Premium subscriber
+      </div>
+      <div style="font-size:12px;margin-top:10px;">
+        <a href="{{{{unsubscribe_url}}}}" style="color:#00897b;text-decoration:underline;">
+          Unsubscribe
+        </a>
+        &nbsp;&middot;&nbsp;
+        <a href="https://grantsignal.news/archive"
+           style="color:#00897b;text-decoration:underline;">Archive</a>
+      </div>
     </div>
 
   </div>
@@ -663,7 +852,7 @@ def _render_grant_card(grant: dict, rank: int) -> str:
     full_stars = int(score)
     half_star  = 1 if (score - full_stars) >= 0.5 else 0
     empty_stars = 5 - full_stars - half_star
-    stars_html  = "⭐" * full_stars + ("✨" if half_star else "") + "☆" * empty_stars
+    stars_display = "⭐" * full_stars + ("✨" if half_star else "") + "☆" * empty_stars
 
     css_class = "grant-card"
     if score >= 4.0:
@@ -690,7 +879,7 @@ def _render_grant_card(grant: dict, rank: int) -> str:
         <a href="{escape(url)}" target="_blank" rel="noopener">{escape(title)}</a>
       </h3>
       <div class="grant-scores">
-        <span class="grant-stars">{stars_html}</span>
+        <span class="grant-stars">{stars_display}</span>
         <span class="grant-fit-label">Fit Score: {score}/5</span>
         {urgency_html}
       </div>
@@ -827,11 +1016,19 @@ def main() -> None:
         print("No eligible, scored grants found. Exiting.")
         sys.exit(0)
 
+    # Count urgency across ALL matched grants (for the free upgrade CTA)
+    urgency_count = sum(1 for g in paid_digest if is_urgent(g.get("closeDate", "") or ""))
+
     print(f"[digest] Free digest: {len(free_digest)} grants | "
-          f"Paid digest: {len(paid_digest)} grants")
+          f"Paid digest: {len(paid_digest)} grants | "
+          f"Urgent: {urgency_count}")
 
     # ── 5. Build email HTML ──────────────────────────────────────────────────
-    free_html = build_free_html(free_digest, total_matched=total_matched)
+    free_html = build_free_html(
+        free_digest,
+        total_matched=total_matched,
+        urgency_count=urgency_count,
+    )
     paid_html = build_paid_html(paid_digest)
 
     # ── 6. Fetch subscribers ─────────────────────────────────────────────────
@@ -843,7 +1040,7 @@ def main() -> None:
 
     send_email_batch(
         to_emails=free_subscribers,
-        subject="📡 GrantSignal | Top 3 Federal Grants This Week",
+        subject="📡 GrantSignal | Your Top 3 Federal Grant Matches This Week",
         html_body=free_html,
         label="FREE",
     )
