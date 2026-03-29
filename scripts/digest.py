@@ -44,6 +44,9 @@ NAVY  = "#0f3460"
 BLUE  = "#1565c0"
 TEAL  = "#00897b"
 
+# Archive directory (relative to repo root, where GitHub Actions runs)
+_ARCHIVE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "archive")
+
 # ---------------------------------------------------------------------------
 # Eligibility filter keywords
 # Grants.gov uses coded eligibility strings; we also scan the synopsis/title.
