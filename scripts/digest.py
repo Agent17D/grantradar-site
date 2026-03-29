@@ -451,10 +451,15 @@ def build_free_html(grants: list[dict], total_matched: int, urgency_count: int =
             _cd = _dt.datetime.strptime(_raw_close, "%m/%d/%Y")
             close_dt = _cd.strftime("%b %-d, %Y")
         else:
-            close_dt = "See listing" if not _raw_close else _raw_close
+            close_dt = "See Grants.gov for deadline" if not _raw_close else _raw_close
         opp_num  = grant.get("number",  "") or ""
-        synopsis_raw = (grant.get("synopsis", grant.get("title", "")) or "")
-        synopsis = synopsis_raw[:120]
+        synopsis_raw = grant.get("synopsis", "") or ""
+        funding_cat = grant.get("fundingCategory", "") or grant.get("cfdaList", "") or ""
+        # If no synopsis, show funding category instead of repeating title
+        if not synopsis_raw or synopsis_raw == (grant.get("title","") or ""):
+            synopsis = f"Funding category: {funding_cat}" if funding_cat else ""
+        else:
+            synopsis = synopsis_raw[:120]
         urgent   = is_urgent(_raw_close)
         url      = grants_gov_url(opp_num) if opp_num else "https://www.grants.gov"
 
@@ -467,7 +472,7 @@ def build_free_html(grants: list[dict], total_matched: int, urgency_count: int =
                 f'&#9889; Closes {close_dt} &mdash; URGENT</span>'
             )
         else:
-            close_html = f'&#128197; Closes {close_dt or "See listing"}'
+            close_html = f'&#128197; Closes {close_dt or "See Grants.gov for deadline"}'
 
         synopsis_display = synopsis + ("..." if len(synopsis_raw) > 120 else "")
 
@@ -608,10 +613,15 @@ def build_paid_html(grants: list[dict]) -> str:
             _cd = _dt.datetime.strptime(_raw_close, "%m/%d/%Y")
             close_dt = _cd.strftime("%b %-d, %Y")
         else:
-            close_dt = "See listing" if not _raw_close else _raw_close
+            close_dt = "See Grants.gov for deadline" if not _raw_close else _raw_close
         opp_num  = grant.get("number",  "") or ""
-        synopsis_raw = (grant.get("synopsis", grant.get("title", "")) or "")
-        synopsis = synopsis_raw[:120]
+        synopsis_raw = grant.get("synopsis", "") or ""
+        funding_cat = grant.get("fundingCategory", "") or grant.get("cfdaList", "") or ""
+        # If no synopsis, show funding category instead of repeating title
+        if not synopsis_raw or synopsis_raw == (grant.get("title","") or ""):
+            synopsis = f"Funding category: {funding_cat}" if funding_cat else ""
+        else:
+            synopsis = synopsis_raw[:120]
         urgent   = is_urgent(_raw_close)
         url      = grants_gov_url(opp_num) if opp_num else "https://www.grants.gov"
 
@@ -624,7 +634,7 @@ def build_paid_html(grants: list[dict]) -> str:
                 f'&#9889; Closes {close_dt} &mdash; URGENT</span>'
             )
         else:
-            close_html = f'&#128197; Closes {close_dt or "See listing"}'
+            close_html = f'&#128197; Closes {close_dt or "See Grants.gov for deadline"}'
 
         synopsis_display = synopsis + ("..." if len(synopsis_raw) > 120 else "")
 
@@ -898,7 +908,7 @@ def _render_grant_card(grant: dict, rank: int) -> str:
       </div>
       <p class="grant-synopsis">{escape(synopsis)}{"…" if len(synopsis) == 500 else ""}</p>
       <div class="grant-footer">
-        <span class="grant-close-date">Closes: <strong>{escape(close_dt) or "See listing"}</strong></span>
+        <span class="grant-close-date">Closes: <strong>{escape(close_dt) or "See Grants.gov for deadline"}</strong></span>
         <a href="{escape(url)}" target="_blank" rel="noopener" class="grant-link">View on Grants.gov →</a>
       </div>
     </div>"""
