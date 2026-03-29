@@ -1008,6 +1008,17 @@ def main() -> None:
         print("No grants fetched. Exiting.")
         sys.exit(1)
 
+    # Deduplicate by grant ID
+    seen_ids = set()
+    unique_grants = []
+    for g in grants:
+        gid = str(g.get("id") or g.get("number") or g.get("title",""))
+        if gid not in seen_ids:
+            seen_ids.add(gid)
+            unique_grants.append(g)
+    print(f"[dedup] {len(grants)} grants → {len(unique_grants)} unique")
+    grants = unique_grants
+
     # ── 2–4. Filter, score, build digests ───────────────────────────────────
     free_digest, paid_digest = build_digests(grants)
     total_matched = len(paid_digest)
