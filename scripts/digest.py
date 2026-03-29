@@ -270,13 +270,12 @@ def is_eligible(grant: dict) -> bool:
         if "unrestricted" in label or "unrestricted" in code:
             return True
 
-    # --- INCLUSION: Fall back to free-text scan ---
-    text = (title + " " + synopsis).lower()
-    for kw in NONPROFIT_KEYWORDS:
-        if kw in text:
-            return True
-
-    return False
+    # --- INCLUSION: Fall back — default to include ---
+    # The exclusion filters above already removed clearly irrelevant grants
+    # (NIH research, clinical trials, etc.). If a grant survived to here,
+    # include it and let the scorer rank its relevance.
+    # Bonus: boost score if nonprofit keywords are present (handled in scorer).
+    return True
 
 
 # ---------------------------------------------------------------------------
