@@ -444,11 +444,18 @@ def build_free_html(grants: list[dict], total_matched: int, urgency_count: int =
         score    = grant.get("_score", 0)
         title    = grant.get("title",      "Untitled") or "Untitled"
         agency   = grant.get("agency", "Unknown Agency") or "Unknown Agency"
-        close_dt = grant.get("closeDate",  "") or ""
+        _raw_close = grant.get("closeDate", "") or ""
+        import re as _re
+        if _re.match(r"\d{2}/\d{2}/\d{4}", _raw_close):
+            import datetime as _dt
+            _cd = _dt.datetime.strptime(_raw_close, "%m/%d/%Y")
+            close_dt = _cd.strftime("%b %-d, %Y")
+        else:
+            close_dt = "See listing" if not _raw_close else _raw_close
         opp_num  = grant.get("number",  "") or ""
         synopsis_raw = (grant.get("synopsis", grant.get("title", "")) or "")
         synopsis = synopsis_raw[:120]
-        urgent   = is_urgent(close_dt)
+        urgent   = is_urgent(_raw_close)
         url      = grants_gov_url(opp_num) if opp_num else "https://www.grants.gov"
 
         border_color = "#e53935" if urgent else "#00897b"
@@ -594,11 +601,18 @@ def build_paid_html(grants: list[dict]) -> str:
         score    = grant.get("_score", 0)
         title    = grant.get("title",      "Untitled") or "Untitled"
         agency   = grant.get("agency", "Unknown Agency") or "Unknown Agency"
-        close_dt = grant.get("closeDate",  "") or ""
+        _raw_close = grant.get("closeDate", "") or ""
+        import re as _re
+        if _re.match(r"\d{2}/\d{2}/\d{4}", _raw_close):
+            import datetime as _dt
+            _cd = _dt.datetime.strptime(_raw_close, "%m/%d/%Y")
+            close_dt = _cd.strftime("%b %-d, %Y")
+        else:
+            close_dt = "See listing" if not _raw_close else _raw_close
         opp_num  = grant.get("number",  "") or ""
         synopsis_raw = (grant.get("synopsis", grant.get("title", "")) or "")
         synopsis = synopsis_raw[:120]
-        urgent   = is_urgent(close_dt)
+        urgent   = is_urgent(_raw_close)
         url      = grants_gov_url(opp_num) if opp_num else "https://www.grants.gov"
 
         border_color = "#e53935" if urgent else "#00897b"
