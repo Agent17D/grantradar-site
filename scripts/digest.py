@@ -225,11 +225,11 @@ def is_eligible(grant: dict) -> bool:
 
     Field mapping (all at top level of Grants.gov oppHits entries):
       - title:      grant.get("title")
-      - agencyName: grant.get("agencyName")
+      - agencyName: grant.get("agency")
       - synopsis:   grant.get("synopsis")
       - closeDate:  grant.get("closeDate")
       - openDate:   grant.get("openDate")
-      - oppNumber:  grant.get("oppNumber")
+      - oppNumber:  grant.get("number")
       - id:         grant.get("id")
 
     We check structured eligibilities AND scan title/synopsis free-text.
@@ -238,7 +238,7 @@ def is_eligible(grant: dict) -> bool:
     # --- Field access (all top-level per Grants.gov API) ---
     title    = grant.get("title",      "") or ""
     synopsis = grant.get("synopsis",   "") or ""
-    agency   = grant.get("agencyName", "") or ""
+    agency   = grant.get("agency", "") or ""
 
     # --- EXCLUSION: title pattern filter ---
     title_lower = title.lower()
@@ -298,7 +298,7 @@ def score_grant(grant: dict) -> float:
     """
     title    = grant.get("title",        "") or ""
     synopsis = grant.get("synopsis",     "") or ""
-    agency   = grant.get("agencyName",   "") or ""
+    agency   = grant.get("agency",   "") or ""
     close_dt = grant.get("closeDate",    "") or ""
     award    = grant.get("awardCeiling", None)
 
@@ -444,10 +444,10 @@ def build_free_html(grants: list[dict], total_matched: int, urgency_count: int =
     for grant in grants:
         score    = grant.get("_score", 0)
         title    = grant.get("title",      "Untitled") or "Untitled"
-        agency   = grant.get("agencyName", "Unknown Agency") or "Unknown Agency"
+        agency   = grant.get("agency", "Unknown Agency") or "Unknown Agency"
         close_dt = grant.get("closeDate",  "") or ""
-        opp_num  = grant.get("oppNumber",  "") or ""
-        synopsis_raw = (grant.get("synopsis", "") or "")
+        opp_num  = grant.get("number",  "") or ""
+        synopsis_raw = (grant.get("synopsis", grant.get("title", "")) or "")
         synopsis = synopsis_raw[:120]
         urgent   = is_urgent(close_dt)
         url      = grants_gov_url(opp_num) if opp_num else "https://www.grants.gov"
@@ -594,10 +594,10 @@ def build_paid_html(grants: list[dict]) -> str:
     for grant in grants:
         score    = grant.get("_score", 0)
         title    = grant.get("title",      "Untitled") or "Untitled"
-        agency   = grant.get("agencyName", "Unknown Agency") or "Unknown Agency"
+        agency   = grant.get("agency", "Unknown Agency") or "Unknown Agency"
         close_dt = grant.get("closeDate",  "") or ""
-        opp_num  = grant.get("oppNumber",  "") or ""
-        synopsis_raw = (grant.get("synopsis", "") or "")
+        opp_num  = grant.get("number",  "") or ""
+        synopsis_raw = (grant.get("synopsis", grant.get("title", "")) or "")
         synopsis = synopsis_raw[:120]
         urgent   = is_urgent(close_dt)
         url      = grants_gov_url(opp_num) if opp_num else "https://www.grants.gov"
@@ -842,9 +842,9 @@ def _render_grant_card(grant: dict, rank: int) -> str:
     """Render a single grant as an HTML card for the archive page."""
     score     = grant.get("_score", 0)
     title     = grant.get("title",      "Untitled") or "Untitled"
-    agency    = grant.get("agencyName", "Unknown Agency") or "Unknown Agency"
+    agency    = grant.get("agency", "Unknown Agency") or "Unknown Agency"
     close_dt  = grant.get("closeDate",  "") or ""
-    opp_num   = grant.get("oppNumber",  "") or ""
+    opp_num   = grant.get("number",  "") or ""
     synopsis  = (grant.get("synopsis",  "") or "")[:500]
     urgency   = urgency_flag(close_dt)
     url       = grants_gov_url(opp_num) if opp_num else "https://www.grants.gov"
