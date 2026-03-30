@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-GrantRadar Thursday Reminder Pipeline
+GrantSignal Thursday Reminder Pipeline
 ---------------------------------------
 Every Thursday, checks grants from the most recent digest for upcoming deadlines
 (closing within 7 days). If any are found, sends a reminder email to all
@@ -28,13 +28,13 @@ import requests
 BEEHIIV_API_KEY = os.environ.get("BEEHIIV_API_KEY", "")
 BEEHIIV_PUB_ID  = os.environ.get("BEEHIIV_PUB_ID",  "")
 RESEND_API_KEY  = os.environ.get("RESEND_API_KEY",   "")
-FROM_EMAIL      = os.environ.get("FROM_EMAIL", "digest@grantradar.news")
+FROM_EMAIL      = os.environ.get("FROM_EMAIL", "digest@grantsignal.news")
 DRY_RUN         = os.environ.get("DRY_RUN", "false").lower() in ("1", "true", "yes")
 
 # GITHUB_TOKEN is auto-injected in GitHub Actions
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
 
-GITHUB_API_BASE = "https://api.github.com/repos/Agent17D/grantradar-site"
+GITHUB_API_BASE = "https://api.github.com/repos/Agent17D/grantsignal-site"
 
 # Brand colours
 NAVY = "#0f3460"
@@ -308,7 +308,7 @@ def build_reminder_html(urgent_grants: list[dict]) -> str:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GrantRadar Deadline Alert</title>
+  <title>GrantSignal Deadline Alert</title>
 </head>
 <body style="margin:0;padding:0;background:#f0f4f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4f8;">
@@ -320,7 +320,7 @@ def build_reminder_html(urgent_grants: list[dict]) -> str:
         <tr>
           <td style="background:linear-gradient(135deg,#0f3460 0%,#163d6e 100%);padding:28px 32px;text-align:center;">
             <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;margin-bottom:4px;">
-              ⚡ GrantRadar
+              ⚡ GrantSignal
             </div>
             <div style="font-size:13px;color:#90b8d8;">Deadline Alert — {_escape(week_str)}</div>
           </td>
@@ -350,11 +350,11 @@ def build_reminder_html(urgent_grants: list[dict]) -> str:
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td style="font-size:11px;color:#8a9ab0;line-height:1.7;">
-                  📡 <strong>GrantRadar</strong> — Federal Grant Discovery for Nonprofits &amp; Schools<br>
+                  📡 <strong>GrantSignal</strong> — Federal Grant Discovery for Nonprofits &amp; Schools<br>
                   1401 Westbank Expressway, Suite 109, Westwego, LA 70094<br>
-                  You're receiving this because you're a GrantRadar Premium subscriber.<br>
+                  You're receiving this because you're a GrantSignal Premium subscriber.<br>
                   <a href="{{{{unsubscribe_url}}}}" style="color:#00897b;">Unsubscribe</a> &nbsp;·&nbsp;
-                  <a href="https://grantradar.news" style="color:#00897b;">grantradar.news</a>
+                  <a href="https://grantsignal.news" style="color:#00897b;">grantsignal.news</a>
                 </td>
               </tr>
             </table>
@@ -475,7 +475,7 @@ def send_reminder_emails(subscribers: list[str], subject: str, html_body: str) -
 
 def main() -> None:
     print("=" * 60)
-    print("  GrantRadar Thursday Reminder Pipeline")
+    print("  GrantSignal Thursday Reminder Pipeline")
     print(f"  {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}")
     if DRY_RUN:
         print("  *** DRY RUN — emails will NOT be sent ***")
@@ -521,7 +521,7 @@ def main() -> None:
 
     # ── 5. Build reminder email ───────────────────────────────────────────────
     n = len(urgent)
-    subject = f"⚡ GrantRadar | {n} Grant{'s' if n != 1 else ''} Closing This Week"
+    subject = f"⚡ GrantSignal | {n} Grant{'s' if n != 1 else ''} Closing This Week"
     reminder_html = build_reminder_html(urgent)
 
     # ── 6. Fetch premium subscribers ─────────────────────────────────────────
