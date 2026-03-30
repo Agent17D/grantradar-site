@@ -1,0 +1,74 @@
+name: Thursday Deadline Reminders
+
+on:
+  # Runs every Thursday at 7am CT = 12:00 UTC
+  schedule:
+    - cron: "0 12 * * 4"   # "At 12:00 on Thursday"
+
+  # Allow manual trigger from the Actions tab
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (parse only, skip sending emails)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+jobs:
+  send-reminders:
+    name: Send Thursday Deadline Reminders
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: write
+
+    steps:
+      # ── Checkout ────────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Python setup ────────────────────────────────────────────────────────
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: scripts/requirements.txt
+
+      # ── Install dependencies ─────────────────────────────────────────────────
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      # ── Run the reminder pipeline ────────────────────────────────────────────
+      - name: Run Thursday reminder pipeline
+        env:
+          BEEHIIV_API_KEY: ${{ secrets.BEEHIIV_API_KEY }}
+          BEEHIIV_PUB_ID:  ${{ secrets.BEEHIIV_PUB_ID }}
+          RESEND_API_KEY:  ${{ secrets.RESEND_API_KEY }}
+          FROM_EMAIL:      ${{ secrets.FROM_EMAIL }}
+          GITHUB_TOKEN:    ${{ secrets.GITHUB_TOKEN }}
+          DRY_RUN:         ${{ github.event.inputs.dry_run || 'false' }}
+        run: python scripts/reminders.py
+
+      # ── Commit archive files (no-op for reminders, but keeps parity) ─────────
+      - name: Commit archive files
+        run: |
+          git config user.name "GrantSignal Bot"
+          git config user.email "digest@grantsignal.news"
+          git add archive/ || true
+          git diff --staged --quiet || git commit -m "Add archive files: $(date +%Y-%m-%d)"
+          git push || true
+
+      # ── Upload reminder logs (for debugging) ────────────────────────────────
+      - name: Archive reminder logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reminder-run-${{ github.run_number }}
+          path: |
+            scripts/reminders.py
+          retention-days: 14
