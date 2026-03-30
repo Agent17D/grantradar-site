@@ -57,8 +57,8 @@ jobs:
       # ── Commit archive files (no-op for reminders, but keeps parity) ─────────
       - name: Commit archive files
         run: |
-          git config user.name "GrantSignal Bot"
-          git config user.email "digest@grantsignal.news"
+          git config user.name "GrantRadar Bot"
+          git config user.email "digest@grantradar.news"
           git add archive/ || true
           git diff --staged --quiet || git commit -m "Add archive files: $(date +%Y-%m-%d)"
           git push || true
