@@ -19,6 +19,8 @@ import math
 import random
 import datetime
 import requests
+import hashlib
+import base64
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -28,6 +30,9 @@ BEEHIIV_API_KEY = os.environ.get("BEEHIIV_API_KEY", "")
 BEEHIIV_PUB_ID  = os.environ.get("BEEHIIV_PUB_ID",  "")
 RESEND_API_KEY  = os.environ.get("RESEND_API_KEY",  "")
 FROM_EMAIL      = os.environ.get("FROM_EMAIL", "digest@grantsignal.news")
+# GITHUB_TOKEN is used to load subscriber preferences from the repo.
+# Set via GitHub Actions secret or GITHUB_TOKEN env var (auto-set in Actions).
+GITHUB_TOKEN    = os.environ.get("GITHUB_TOKEN", "")
 
 GRANTS_GOV_ENDPOINT = "https://api.grants.gov/v1/api/search2"
 
@@ -1022,6 +1027,102 @@ def save_archive_entry(grants: list[dict], week_date: datetime.date) -> list[str
         "archive/issues.json",
     ]
 
+
+# ---------------------------------------------------------------------------
+# Step 6b: Load subscriber preferences for personalization
+# ---------------------------------------------------------------------------
+
+def load_subscriber_preferences() -> dict:
+    """
+    Load all subscriber preference files from data/preferences/ in GitHub repo.
+    Returns dict keyed by SHA-256 email hash: { hash: preferences_dict }
+    """
+    url = "https://api.github.com/repos/Agent17D/grantsignal-site/contents/data/preferences"
+    headers = {
+        "Authorization": f"token {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github.v3+json",
+    }
+    try:
+        resp = requests.get(url, headers=headers, timeout=15)
+        if resp.status_code == 404:
+            print("[prefs] data/preferences/ directory not found — returning empty prefs")
+            return {}
+        resp.raise_for_status()
+        files = resp.json()
+    except requests.RequestException as exc:
+        print(f"[prefs] ERROR listing preferences directory: {exc}")
+        return {}
+
+    all_prefs = {}
+    for file_entry in files:
+        fname = file_entry.get("name", "")
+        if not fname.endswith(".json"):
+            continue
+        hash_key = fname[:-5]  # strip .json extension
+        file_url = file_entry.get("url", "")
+        try:
+            file_resp = requests.get(file_url, headers=headers, timeout=10)
+            file_resp.raise_for_status()
+            file_data = file_resp.json()
+            raw_content = base64.b64decode(file_data["content"]).decode("utf-8")
+            prefs = json.loads(raw_content)
+            all_prefs[hash_key] = prefs
+        except Exception as exc:
+            print(f"[prefs] WARN could not load preferences for {fname}: {exc}")
+            continue
+
+    print(f"[prefs] Loaded {len(all_prefs)} subscriber preference profiles")
+    return all_prefs
+
+
+def filter_grants_for_subscriber(grants: list, prefs: dict) -> list:
+    """
+    Filter and sort grants based on a subscriber's preferences.
+    Returns filtered list, preserving score-based ordering.
+    """
+    if not prefs:
+        return grants
+
+    # ── Budget filtering ────────────────────────────────────────────────────
+    budget = prefs.get("budget", "Any size")
+    budget_limits = {
+        "Under $100K":    200000,
+        "$100K – $500K":  750000,
+        "$500K – $1M":    2000000,
+    }
+    ceiling = budget_limits.get(budget)  # None means no filter
+
+    if ceiling is not None:
+        filtered = [
+            g for g in grants
+            if g.get("awardCeiling") is None or (g.get("awardCeiling") or 0) <= ceiling
+        ]
+    else:
+        filtered = list(grants)
+
+    # ── State filtering (log only — grant API doesn't reliably include state) ─
+    state = prefs.get("state", "")
+    if state:
+        print(f"[prefs] NOTE: subscriber has state preference '{state}' but state filtering is not applied (API limitation)")
+
+    # ── Mission area boost for sorting ──────────────────────────────────────
+    mission_area = (prefs.get("mission_area", "") or "").lower()
+
+    def sort_key(g):
+        base_score = g.get("_score", 0) or 0
+        boost = 0.0
+        if mission_area:
+            categories = [c.lower() for c in (g.get("_categories", []) or [])]
+            title_lower = (g.get("title", "") or "").lower()
+            synopsis_lower = (g.get("synopsis", "") or "").lower()
+            if (any(mission_area in cat for cat in categories)
+                    or mission_area in title_lower
+                    or mission_area in synopsis_lower):
+                boost = 0.5
+        return base_score + boost
+
+    return sorted(filtered, key=sort_key, reverse=True)
+
 def main() -> None:
     print("=" * 60)
     print("  GrantSignal Weekly Digest Pipeline")
@@ -1080,6 +1181,9 @@ def main() -> None:
     free_subscribers = fetch_subscribers("free")
     paid_subscribers = fetch_subscribers("premium")
 
+    # Load subscriber preferences for personalization
+    all_prefs = load_subscriber_preferences()
+
     # ── 7. Send emails ───────────────────────────────────────────────────────
     week_str = datetime.date.today().strftime("%B %d, %Y")
 
@@ -1090,12 +1194,45 @@ def main() -> None:
         label="FREE",
     )
 
-    send_email_batch(
-        to_emails=paid_subscribers,
-        subject=f"📡 GrantSignal | {total_matched} Federal Grant Matches This Week",
-        html_body=paid_html,
-        label="PAID",
-    )
+    # Send personalized digest to each premium subscriber
+    if not paid_subscribers:
+        print("[resend] No premium recipients — skipping PAID digest.")
+    else:
+        print(f"[resend] Sending personalized PAID digest to {len(paid_subscribers)} premium subscribers…")
+        paid_success = 0
+        paid_errors = 0
+        for i, email in enumerate(paid_subscribers, start=1):
+            # Compute SHA-256 hash of subscriber email for prefs lookup
+            email_hash = hashlib.sha256(email.strip().lower().encode()).hexdigest()
+            sub_prefs = all_prefs.get(email_hash, {})
+            # Filter/sort grants for this subscriber
+            sub_grants = filter_grants_for_subscriber(paid_digest, sub_prefs)
+            sub_html = build_paid_html(sub_grants)
+            sub_count = len(sub_grants)
+            payload = {
+                "from":    FROM_EMAIL,
+                "to":      [email],
+                "subject": f"📡 GrantSignal | {sub_count} Federal Grant Matches This Week",
+                "html":    sub_html,
+            }
+            try:
+                resp = requests.post(
+                    "https://api.resend.com/emails",
+                    json=payload,
+                    headers={
+                        "Authorization": f"Bearer {RESEND_API_KEY}",
+                        "Content-Type":  "application/json",
+                    },
+                    timeout=20,
+                )
+                resp.raise_for_status()
+                paid_success += 1
+            except requests.RequestException as exc:
+                paid_errors += 1
+                print(f"[resend] WARN failed to send PAID to {email}: {exc}")
+            if i % 10 == 0:
+                print(f"[resend] Progress: {i}/{len(paid_subscribers)} sent…")
+        print(f"[resend] PAID complete — {paid_success} sent, {paid_errors} errors.")
 
     # ── 8. Publish Beehiiv archive post ──────────────────────────────────────
 
@@ -1111,3 +1248,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
