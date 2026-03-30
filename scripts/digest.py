@@ -535,6 +535,11 @@ def build_free_html(grants: list[dict], total_matched: int, urgency_count: int =
 <body style="margin:0;padding:0;background:#f4f7fb;
              font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
              color:#222222;">
+  <!-- Preheader text (controls Gmail preview snippet) -->
+  <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
+    Your top 3 federal grant matches this week — curated for nonprofits and schools.
+    &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
+  </div>
 
   <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
 
@@ -687,6 +692,11 @@ def build_paid_html(grants: list[dict]) -> str:
 <body style="margin:0;padding:0;background:#f4f7fb;
              font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
              color:#222222;">
+  <!-- Preheader text (controls Gmail preview snippet) -->
+  <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
+    Your top 3 federal grant matches this week — curated for nonprofits and schools.
+    &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
+  </div>
 
   <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
 
