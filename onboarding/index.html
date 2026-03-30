@@ -91,11 +91,15 @@
     .btn-next{background:var(--teal);color:#fff;font-size:15px;font-weight:700;padding:13px 32px;border-radius:6px;cursor:pointer;border:none;transition:background 0.2s,transform 0.1s;box-shadow:0 4px 16px rgba(0,137,123,0.30);}
     .btn-next:hover{background:#00796b;transform:translateY(-1px);}
     .btn-next:active{transform:translateY(0);}
-    .btn-spacer{flex:1;}
+    .btn-next:disabled{background:#7cb9b4;cursor:not-allowed;transform:none;}
 
     /* Error message */
     .error-msg{background:#fff0f0;border:1px solid #ffcdd2;color:#c62828;font-size:13px;font-weight:600;padding:10px 16px;border-radius:6px;margin-top:16px;display:none;}
     .error-msg.visible{display:block;}
+
+    /* API error message */
+    .api-error-msg{color:#c62828;font-size:13px;font-weight:600;margin-top:12px;display:none;}
+    .api-error-msg.visible{display:block;}
 
     /* Success screen */
     .success-screen{display:none;text-align:center;padding:60px 24px;}
@@ -161,9 +165,17 @@
   <!-- ===== STEP 1 ===== -->
   <div class="step-page active" id="step1">
 
+    <!-- Q0: Email (first question) -->
+    <div class="q-card">
+      <div class="q-label">Question 1 <span style="color:#c62828;font-size:12px;">*required</span></div>
+      <div class="q-title">Your email address</div>
+      <div class="q-hint">Enter the email you subscribed with so we can link your preferences.</div>
+      <input type="email" class="text-input" id="subscriberEmail" placeholder="Enter the email you subscribed with" autocomplete="email" required>
+    </div>
+
     <!-- Q1: Org name -->
     <div class="q-card">
-      <div class="q-label">Question 1</div>
+      <div class="q-label">Question 2</div>
       <div class="q-title">What is your organization's name?</div>
       <div class="q-hint">Optional — helps us personalize your digest header.</div>
       <input type="text" class="text-input" id="orgName" placeholder="e.g. Sunrise Community Foundation" autocomplete="organization">
@@ -171,7 +183,7 @@
 
     <!-- Q2: Org type -->
     <div class="q-card">
-      <div class="q-label">Question 2 <span style="color:#c62828;font-size:12px;">*required</span></div>
+      <div class="q-label">Question 3 <span style="color:#c62828;font-size:12px;">*required</span></div>
       <div class="q-title">What best describes your organization?</div>
       <div class="q-hint">Select the option that most closely fits.</div>
       <div class="radio-list" id="orgTypeList">
@@ -231,7 +243,7 @@
 
     <!-- Q3: Mission area -->
     <div class="q-card">
-      <div class="q-label">Question 3 <span style="color:#c62828;font-size:12px;">*required</span></div>
+      <div class="q-label">Question 4 <span style="color:#c62828;font-size:12px;">*required</span></div>
       <div class="q-title">What is your primary mission area?</div>
       <div class="q-hint">Choose the one that best represents your core work.</div>
       <div class="radio-list" id="missionList">
@@ -297,7 +309,7 @@
 
     <!-- Q4: Populations served -->
     <div class="q-card">
-      <div class="q-label">Question 4 <span style="color:#c62828;font-size:12px;">*required</span></div>
+      <div class="q-label">Question 5 <span style="color:#c62828;font-size:12px;">*required</span></div>
       <div class="q-title">Do you serve any of these specific populations?</div>
       <div class="q-hint">Select all that apply.</div>
       <div class="checkbox-list" id="populationsList">
@@ -366,7 +378,7 @@
 
     <!-- Q5: Budget -->
     <div class="q-card">
-      <div class="q-label">Question 5 <span style="color:#c62828;font-size:12px;">*required</span></div>
+      <div class="q-label">Question 6 <span style="color:#c62828;font-size:12px;">*required</span></div>
       <div class="q-title">What is your organization's annual operating budget?</div>
       <div class="radio-list" id="budgetList">
         <div class="radio-item" onclick="selectRadio('budget','under100k')">
@@ -394,7 +406,7 @@
 
     <!-- Q6: Grant size -->
     <div class="q-card">
-      <div class="q-label">Question 6 <span style="color:#c62828;font-size:12px;">*required</span></div>
+      <div class="q-label">Question 7 <span style="color:#c62828;font-size:12px;">*required</span></div>
       <div class="q-title">What grant sizes are you typically eligible for?</div>
       <div class="radio-list" id="grantSizeList">
         <div class="radio-item" onclick="selectRadio('grantSize','under25k')">
@@ -433,7 +445,7 @@
 
     <!-- Q7: States -->
     <div class="q-card">
-      <div class="q-label">Question 7 <span style="color:#c62828;font-size:12px;">*required</span></div>
+      <div class="q-label">Question 8 <span style="color:#c62828;font-size:12px;">*required</span></div>
       <div class="q-title">Which states does your organization operate in?</div>
       <div class="q-hint">Select all that apply.</div>
       <div class="checkbox-list states-grid" id="statesList">
@@ -494,7 +506,7 @@
 
     <!-- Q8: Experience -->
     <div class="q-card">
-      <div class="q-label">Question 8 <span style="color:#c62828;font-size:12px;">*required</span></div>
+      <div class="q-label">Question 9 <span style="color:#c62828;font-size:12px;">*required</span></div>
       <div class="q-title">How experienced is your team with federal grant applications?</div>
       <div class="radio-list" id="experienceList">
         <div class="radio-item" onclick="selectRadio('experience','new')">
@@ -520,8 +532,9 @@
     <div class="btn-row">
       <button class="btn-back" onclick="goToStep(2)">← Back</button>
       <div class="btn-spacer"></div>
-      <button class="btn-next" onclick="submitSurvey()" style="background:var(--navy);box-shadow:0 4px 16px rgba(15,52,96,0.30);">Complete Setup →</button>
+      <button class="btn-next" id="submitBtn" onclick="submitSurvey()" style="background:var(--navy);box-shadow:0 4px 16px rgba(15,52,96,0.30);">Complete Setup →</button>
     </div>
+    <div class="api-error-msg" id="apiError">We couldn't save your preferences right now — you'll still receive your digest. Email <a href="mailto:support@grantsignal.news">support@grantsignal.news</a> to set up personalization manually.</div>
   </div>
 
   <!-- ===== SUCCESS ===== -->
@@ -655,9 +668,10 @@
     var ok = true;
 
     if (step === 1) {
+      var emailVal = document.getElementById('subscriberEmail').value.trim();
       var orgType = document.querySelector('input[name="orgType"]:checked');
       var mission = document.querySelector('input[name="mission"]:checked');
-      if (!orgType || !mission) ok = false;
+      if (!emailVal || !orgType || !mission) ok = false;
       // If Other selected, require text
       if (orgType && orgType.value === 'Other' && !document.getElementById('orgTypeOther').value.trim()) ok = false;
       if (mission && mission.value === 'Other' && !document.getElementById('missionOther').value.trim()) ok = false;
@@ -689,6 +703,8 @@
     if (!validateStep(3)) return;
 
     // Collect all answers
+    var emailVal = document.getElementById('subscriberEmail').value.trim();
+
     var orgTypeVal = document.querySelector('input[name="orgType"]:checked').value;
     if (orgTypeVal === 'Other') orgTypeVal = document.getElementById('orgTypeOther').value.trim() || 'Other';
 
@@ -700,27 +716,58 @@
 
     var survey = {
       completedAt: new Date().toISOString(),
+      email: emailVal,
       orgName: document.getElementById('orgName').value.trim(),
-      orgType: orgTypeVal,
-      missionArea: missionVal,
-      populationsServed: populations,
-      annualBudget: document.querySelector('input[name="budget"]:checked').value,
-      grantSize: document.querySelector('input[name="grantSize"]:checked').value,
-      states: states,
-      grantExperience: document.querySelector('input[name="experience"]:checked').value
+      org_type: orgTypeVal,
+      mission_area: missionVal,
+      populations: populations,
+      budget: document.querySelector('input[name="budget"]:checked').value,
+      grant_size: document.querySelector('input[name="grantSize"]:checked').value,
+      state: states,
+      experience: document.querySelector('input[name="experience"]:checked').value
     };
 
+    // Save to localStorage as backup regardless of API success
     try {
       localStorage.setItem('grantsignal_onboarding', JSON.stringify(survey));
     } catch(e) {
       // localStorage may be unavailable in some contexts — ignore silently
     }
 
-    // Show success
-    document.getElementById('step3').classList.remove('active');
-    document.getElementById('progressContainer').style.display = 'none';
-    document.getElementById('successScreen').classList.add('visible');
-    window.scrollTo({top: 0, behavior: 'smooth'});
+    // Show loading state
+    var btn = document.getElementById('submitBtn');
+    btn.textContent = 'Saving…';
+    btn.disabled = true;
+
+    // Hide any previous API error
+    document.getElementById('apiError').classList.remove('visible');
+
+    // POST to preferences API
+    fetch('https://grantsignal.news/api/preferences', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(survey)
+    })
+    .then(function(res) {
+      return res.json();
+    })
+    .then(function(data) {
+      if (data && data.success) {
+        // Show success screen
+        document.getElementById('step3').classList.remove('active');
+        document.getElementById('progressContainer').style.display = 'none';
+        document.getElementById('successScreen').classList.add('visible');
+        window.scrollTo({top: 0, behavior: 'smooth'});
+      } else {
+        throw new Error(data && data.error ? data.error : 'Unknown error');
+      }
+    })
+    .catch(function(err) {
+      // Non-blocking error — re-enable button and show message
+      btn.textContent = 'Complete Setup →';
+      btn.disabled = false;
+      document.getElementById('apiError').classList.add('visible');
+    });
   }
 </script>
 
