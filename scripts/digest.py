@@ -66,6 +66,9 @@ RESEARCH_AGENCY_PATTERNS = [
     "National Heart",
     "National Institute of",
     "AHRQ",
+    "National Science Foundation",
+    "NSF",
+    "National Endowment for the Humanities",
 ]
 
 # Keywords that make a research-agency grant worth KEEPING (community focus)
@@ -457,7 +460,7 @@ def build_free_html(grants: list[dict], total_matched: int, urgency_count: int =
         funding_cat = grant.get("fundingCategory", "") or grant.get("cfdaList", "") or ""
         # If no synopsis, show funding category instead of repeating title
         if not synopsis_raw or synopsis_raw == (grant.get("title","") or ""):
-            synopsis = f"Funding category: {funding_cat}" if funding_cat else ""
+            synopsis = ""  # Don't show raw CFDA codes
         else:
             synopsis = synopsis_raw[:120]
         urgent   = is_urgent(_raw_close)
@@ -619,7 +622,7 @@ def build_paid_html(grants: list[dict]) -> str:
         funding_cat = grant.get("fundingCategory", "") or grant.get("cfdaList", "") or ""
         # If no synopsis, show funding category instead of repeating title
         if not synopsis_raw or synopsis_raw == (grant.get("title","") or ""):
-            synopsis = f"Funding category: {funding_cat}" if funding_cat else ""
+            synopsis = ""  # Don't show raw CFDA codes
         else:
             synopsis = synopsis_raw[:120]
         urgent   = is_urgent(_raw_close)
