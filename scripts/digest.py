@@ -477,7 +477,7 @@ def build_free_html(grants: list[dict], total_matched: int, urgency_count: int =
         else:
             close_html = f'&#128197; Closes {close_dt or "See Grants.gov for deadline"}'
 
-        synopsis_display = synopsis + ("..." if len(synopsis_raw) > 120 else "")
+        synopsis_display = (synopsis + ("..." if len(synopsis_raw) > 120 else "")) if synopsis else ""
 
         grant_cards += f"""
         <div style="background:#ffffff;border-radius:10px;
@@ -497,8 +497,7 @@ def build_free_html(grants: list[dict], total_matched: int, urgency_count: int =
           <div style="font-size:13px;color:#444;margin-bottom:8px;">
             {close_html}
           </div>
-          <div style="font-size:13px;color:#5a6a7a;line-height:1.6;
-                      margin-bottom:14px;">{synopsis_display}</div>
+          {f'<div style="font-size:13px;color:#5a6a7a;line-height:1.6;margin-bottom:14px;">{synopsis_display}</div>' if synopsis_display else ""}
           <div>
             <a href="{url}"
                style="display:inline-block;background:#00897b;color:#ffffff;
@@ -639,7 +638,7 @@ def build_paid_html(grants: list[dict]) -> str:
         else:
             close_html = f'&#128197; Closes {close_dt or "See Grants.gov for deadline"}'
 
-        synopsis_display = synopsis + ("..." if len(synopsis_raw) > 120 else "")
+        synopsis_display = (synopsis + ("..." if len(synopsis_raw) > 120 else "")) if synopsis else ""
 
         grant_cards += f"""
         <div style="background:#ffffff;border-radius:10px;
@@ -659,8 +658,7 @@ def build_paid_html(grants: list[dict]) -> str:
           <div style="font-size:13px;color:#444;margin-bottom:8px;">
             {close_html}
           </div>
-          <div style="font-size:13px;color:#5a6a7a;line-height:1.6;
-                      margin-bottom:14px;">{synopsis_display}</div>
+          {f'<div style="font-size:13px;color:#5a6a7a;line-height:1.6;margin-bottom:14px;">{synopsis_display}</div>' if synopsis_display else ""}
           <div>
             <a href="{url}"
                style="display:inline-block;background:#00897b;color:#ffffff;
