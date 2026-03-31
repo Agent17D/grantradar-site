@@ -469,6 +469,250 @@ def send_reminder_emails(subscribers: list[str], subject: str, html_body: str) -
     print(f"[resend] Reminder complete — {success} sent, {errors} errors.")
 
 
+
+
+# ---------------------------------------------------------------------------
+# SAM.gov Expiration Reminder Functions
+# ---------------------------------------------------------------------------
+
+def load_subscriber_preferences() -> list[dict]:
+    """
+    Load all preference files from data/preferences/ in GitHub.
+    Returns a list of preference dicts (each with at least 'email' and optionally 'sam_expiry').
+    """
+    url = f"{GITHUB_API_BASE}/contents/data/preferences"
+    headers = {"Accept": "application/vnd.github.v3+json"}
+    if GITHUB_TOKEN:
+        headers["Authorization"] = f"token {GITHUB_TOKEN}"
+
+    try:
+        resp = requests.get(url, headers=headers, timeout=15)
+        if resp.status_code == 404:
+            print("[prefs] data/preferences/ not found — skipping SAM.gov reminders")
+            return []
+        resp.raise_for_status()
+        files = resp.json()
+    except Exception as exc:
+        print(f"[prefs] ERROR listing preferences directory: {exc}")
+        return []
+
+    prefs_list = []
+    import base64
+    for f in files:
+        if not f.get("name", "").endswith(".json"):
+            continue
+        try:
+            file_resp = requests.get(f["url"], headers=headers, timeout=15)
+            file_resp.raise_for_status()
+            file_data = file_resp.json()
+            raw = base64.b64decode(file_data["content"]).decode("utf-8")
+            prefs = json.loads(raw)
+            prefs_list.append(prefs)
+        except Exception as exc:
+            print(f"[prefs] WARN could not load {f.get('name')}: {exc}")
+
+    print(f"[prefs] Loaded {len(prefs_list)} preference files.")
+    return prefs_list
+
+
+def build_sam_reminder_html(email: str, days_until: int, expiry_month: str, expiry_year: int) -> str:
+    """Build SAM.gov expiration reminder email HTML."""
+    today = datetime.date.today()
+    week_str = today.strftime("%B %d, %Y")
+
+    if days_until <= 0:
+        header_label = "SAM.gov Registration Expired"
+        intro = (
+            f"Your SAM.gov entity registration may have expired as of "
+            f"{expiry_month} {expiry_year}."
+        )
+        urgency_color = "#c62828"
+        urgency_icon = "🚨"
+    elif days_until <= 30:
+        header_label = "SAM.gov Registration Expiring Soon"
+        intro = (
+            f"Your SAM.gov entity registration expires on "
+            f"{expiry_month} {expiry_year} — in {days_until} day{'s' if days_until != 1 else ''}."
+        )
+        urgency_color = "#e65100"
+        urgency_icon = "⚠️"
+    else:
+        header_label = "SAM.gov Registration Expiring in 60 Days"
+        intro = (
+            f"Your SAM.gov entity registration expires on "
+            f"{expiry_month} {expiry_year} — in {days_until} days."
+        )
+        urgency_color = "#f57c00"
+        urgency_icon = "⚠️"
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GrantSignal SAM.gov Reminder</title>
+</head>
+<body style="margin:0;padding:0;background:#f0f4f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4f8;">
+    <tr><td align="center" style="padding:32px 16px;">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;
+             border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(15,52,96,0.10);">
+
+        <!-- Header -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#0f3460 0%,#163d6e 100%);padding:28px 32px;text-align:center;">
+            <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;margin-bottom:4px;">
+              {urgency_icon} GrantSignal
+            </div>
+            <div style="font-size:13px;color:#90b8d8;">{header_label} — {week_str}</div>
+          </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+          <td style="padding:28px 32px;">
+            <h2 style="font-size:20px;font-weight:800;color:#0f3460;margin:0 0 12px;line-height:1.3;">
+              {intro}
+            </h2>
+            <p style="font-size:15px;color:#5a6a7a;margin:0 0 16px;line-height:1.6;">
+              An expired SAM.gov registration will disqualify you from applying for federal grants.
+            </p>
+            <p style="font-size:15px;color:#5a6a7a;margin:0 0 24px;line-height:1.6;">
+              Renewing takes 10–15 minutes at
+              <a href="https://sam.gov/content/entity-registration" style="color:#1565c0;">sam.gov/content/entity-registration</a>.
+            </p>
+
+            <!-- CTA Button -->
+            <div style="text-align:center;margin:24px 0;">
+              <a href="https://sam.gov/content/entity-registration" target="_blank"
+                 style="display:inline-block;background:#00897b;color:#fff;font-size:15px;
+                        font-weight:700;padding:14px 32px;border-radius:8px;text-decoration:none;">
+                Renew at SAM.gov →
+              </a>
+            </div>
+
+            <p style="font-size:13px;color:#8a9ab0;margin:24px 0 0;line-height:1.6;">
+              This reminder was sent because you entered your SAM.gov expiration date during GrantSignal onboarding.
+              Premium subscribers receive automatic reminders 60 and 30 days before expiration.
+            </p>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="background:#f4f7fb;padding:20px 32px;border-top:1px solid #dde4ed;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="font-size:11px;color:#8a9ab0;line-height:1.7;">
+                  📡 <strong>GrantSignal</strong> — Federal Grant Discovery for Nonprofits &amp; Schools<br>
+                  1401 Westbank Expressway, Suite 109, Westwego, LA 70094<br>
+                  You're receiving this because you're a GrantSignal subscriber with a SAM.gov expiration date on file.<br>
+                  <a href="{{{{unsubscribe_url}}}}" style="color:#00897b;">Unsubscribe</a> &nbsp;·&nbsp;
+                  <a href="https://grantsignal.news" style="color:#00897b;">grantsignal.news</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>"""
+
+
+def check_sam_expiry_reminders() -> None:
+    """
+    Check all subscribers with SAM.gov expiration dates and send reminders as needed.
+    Called at the end of the main reminders flow.
+    """
+    import calendar
+
+    print("\n[sam] Checking SAM.gov expiration reminders…")
+    prefs_list = load_subscriber_preferences()
+
+    if not prefs_list:
+        print("[sam] No SAM.gov reminders needed this week.")
+        return
+
+    today = datetime.date.today()
+    reminders_sent = 0
+
+    for prefs in prefs_list:
+        sam_expiry = prefs.get("sam_expiry", "") or ""
+        email = prefs.get("email", "") or ""
+
+        if not sam_expiry or not email:
+            continue
+
+        # Parse "YYYY-MM" format from month input
+        try:
+            parts = sam_expiry.strip().split("-")
+            if len(parts) != 2:
+                continue
+            expiry_year = int(parts[0])
+            expiry_month_num = int(parts[1])
+            # Use last day of the month as expiry date
+            last_day = calendar.monthrange(expiry_year, expiry_month_num)[1]
+            expiry_date = datetime.date(expiry_year, expiry_month_num, last_day)
+        except (ValueError, IndexError) as exc:
+            print(f"[sam] WARN could not parse sam_expiry '{sam_expiry}' for {email}: {exc}")
+            continue
+
+        days_until = (expiry_date - today).days
+        expiry_month_name = expiry_date.strftime("%B")
+
+        # Determine if this subscriber needs a reminder
+        if days_until <= 60 and days_until > 30:
+            reminder_type = "60-day"
+            subject = f"⚠️ Your SAM.gov registration expires in {days_until} days"
+        elif days_until <= 30 and days_until > 0:
+            reminder_type = "30-day"
+            subject = f"⚠️ Your SAM.gov registration expires in {days_until} days"
+        elif days_until <= 0:
+            reminder_type = "expired"
+            subject = "🚨 Your SAM.gov registration may have expired"
+        else:
+            # More than 60 days away — no reminder needed yet
+            continue
+
+        print(f"[sam] {reminder_type} reminder → {email} (expires {expiry_date}, {days_until}d)")
+
+        html_body = build_sam_reminder_html(email, days_until, expiry_month_name, expiry_year)
+
+        if DRY_RUN:
+            print(f"[dry_run] Would send SAM.gov {reminder_type} reminder to {email}")
+            print(f"[dry_run] Subject: {subject}")
+            reminders_sent += 1
+            continue
+
+        try:
+            resp = requests.post(
+                "https://api.resend.com/emails",
+                json={
+                    "from":    FROM_EMAIL,
+                    "to":      [email],
+                    "subject": subject,
+                    "html":    html_body,
+                },
+                headers={
+                    "Authorization": f"Bearer {RESEND_API_KEY}",
+                    "Content-Type":  "application/json",
+                },
+                timeout=20,
+            )
+            resp.raise_for_status()
+            reminders_sent += 1
+            print(f"[sam] ✓ Sent {reminder_type} reminder to {email}")
+        except requests.RequestException as exc:
+            print(f"[sam] WARN failed to send SAM.gov reminder to {email}: {exc}")
+
+    if reminders_sent == 0:
+        print("[sam] No SAM.gov reminders needed this week.")
+    else:
+        print(f"[sam] SAM.gov reminders complete — {reminders_sent} sent.")
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -529,6 +773,9 @@ def main() -> None:
 
     # ── 7. Send emails ────────────────────────────────────────────────────────
     send_reminder_emails(subscribers, subject, reminder_html)
+
+    # ── SAM.gov expiry reminders ─────────────────────────────────────────────
+    check_sam_expiry_reminders()
 
     print("=" * 60)
     print("  Reminder pipeline complete ✅")
