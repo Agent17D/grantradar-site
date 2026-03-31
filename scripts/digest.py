@@ -450,7 +450,8 @@ def get_match_explanation(grant: dict) -> str:
     """
     title    = (grant.get("title",    "") or "").lower()
     synopsis = (grant.get("synopsis", "") or "").lower()
-    text     = title + " " + synopsis
+    agency   = (grant.get("agency",   "") or "").lower()
+    text     = title + " " + synopsis + " " + agency
 
     category_messages = {
         "education":             "Strong match: education &amp; youth development focus",
@@ -705,7 +706,13 @@ def build_free_html(
     gotw_html = ""
     source_list = all_paid_grants if all_paid_grants else grants
     if source_list:
-        top_grant = max(source_list, key=lambda g: g.get("_score", 0) or 0)
+        def gotw_score(g):
+            import re as _re
+            base = float(g.get("_score", 0) or g.get("score", 0) or 0)
+            close = g.get("closeDate", "") or ""
+            has_date = bool(_re.match(r"\d{2}/\d{2}/\d{4}", close))
+            return base + (1.5 if has_date else -1.0)
+        top_grant = max(source_list, key=gotw_score)
         gotw_html = build_grant_of_week(top_grant)
 
     grant_cards = ""
@@ -795,7 +802,8 @@ def build_free_html(
                 border-radius:8px;text-decoration:none;">
         Upgrade for $29/month &rarr;
       </a>
-    </div>"""
+    </div>
+    <!-- end upgrade cta -->"""
 
     return f"""<!DOCTYPE html>
 <html lang="en">
