@@ -528,6 +528,22 @@
       </div>
     </div>
 
+
+    <!-- SAM.gov Expiration (Optional) -->
+    <div class="question-group" style="margin-top:20px;">
+      <label style="font-size:14px;font-weight:600;color:#1a1a2e;display:block;margin-bottom:6px;">
+        SAM.gov Registration Expiration Date
+        <span style="font-weight:400;color:#5a6a7a;">(optional &mdash; Premium feature)</span>
+      </label>
+      <p style="font-size:12px;color:#5a6a7a;margin-bottom:8px;">
+        Find this at <a href="https://sam.gov" target="_blank" style="color:#1565c0;">sam.gov</a> under your entity registration.
+        Premium subscribers receive automatic reminders 60 and 30 days before expiration.
+      </p>
+      <input type="month" id="sam_expiry"
+        style="padding:10px 14px;border:1px solid #dde4ed;border-radius:8px;font-size:14px;width:100%;max-width:240px;box-sizing:border-box;"
+        placeholder="MM/YYYY">
+    </div>
+
     <div class="error-msg" id="error3">Please answer all required questions before submitting.</div>
     <div class="btn-row">
       <button class="btn-back" onclick="goToStep(2)">← Back</button>
@@ -724,7 +740,8 @@
       budget: document.querySelector('input[name="budget"]:checked').value,
       grant_size: document.querySelector('input[name="grantSize"]:checked').value,
       state: states,
-      experience: document.querySelector('input[name="experience"]:checked').value
+      experience: document.querySelector('input[name="experience"]:checked').value,
+      sam_expiry: (document.getElementById('sam_expiry').value || '')
     };
 
     // Save to localStorage as backup regardless of API success
