@@ -62,6 +62,7 @@ EXCLUDE_TITLE_PATTERNS = [
     "R25", "R01", "R03", "R21", "R34", "K08", "K23", "F31", "F32", "T32",
     "Clinical Trial", "Dissertation", "Fellowship", "Postdoctoral",
     "Career Development Award",
+    "EONS 2018", "Appendix E", "MUREP",
 ]
 
 # Agency name patterns that indicate research agencies
