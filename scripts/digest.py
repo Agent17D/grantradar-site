@@ -689,7 +689,15 @@ def build_free_html(
                               "cooperative agreement modification", "amendment"]
             niche_penalty = -2.0 if any(kw in title for kw in niche_keywords) else 0.0
             return base + (1.5 if has_date else -1.0) + niche_penalty
-        top_grant = max(source_list, key=gotw_score)
+        # Also hard-exclude known non-applicable grant types from GOTW
+        GOTW_EXCLUDE = ["nagpra", "repatriation", "subaward", "sbir", "sttr",
+                        "information collection", "fellowship", "dissertation"]
+        filtered_source = [g for g in source_list
+                          if not any(kw in (g.get("title","") or "").lower()
+                                    for kw in GOTW_EXCLUDE)]
+        if not filtered_source:
+            filtered_source = source_list  # fallback if all excluded
+        top_grant = max(filtered_source, key=gotw_score)
         gotw_html = build_grant_of_week(top_grant)
 
     grant_cards = ""
@@ -795,8 +803,7 @@ def build_free_html(
                 border-radius:8px;text-decoration:none;">
         Upgrade for $29/month &rarr;
       </a>
-    </div>
-    <!-- end upgrade cta -->"""
+    </div>"""
 
     return f"""<!DOCTYPE html>
 <html lang="en">
