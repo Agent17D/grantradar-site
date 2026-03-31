@@ -600,7 +600,7 @@ def build_grant_of_week(top_grant: dict) -> str:
     elif score >= 3.5:
         why_blurb = f"Strong fit for nonprofits focused on {best_cat_label}. Worth a close look."
     else:
-        why_blurb = f"Relevant funding for {best_cat_label} — worth reviewing if it fits your mission."
+        why_blurb = f"A funding opportunity from {agency} worth reviewing — check eligibility requirements to see if your organization qualifies."
 
     # Eligibility checklist
     agency_lower = agency.lower()
