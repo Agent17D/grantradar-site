@@ -435,7 +435,9 @@ def urgency_flag(close_date_str: str) -> str:
     return ""
 
 
-def grants_gov_url(opp_number: str) -> str:
+def grants_gov_url(opp_number: str, grant: dict = None) -> str:
+    if grant and grant.get("source") == "federal_register":
+        return grant.get("url", "https://www.federalregister.gov")
     return f"https://www.grants.gov/search-results-detail/{opp_number}"
 
 
@@ -705,7 +707,8 @@ def build_free_html(
         else:
             synopsis = synopsis_raw[:120]
         urgent   = is_urgent(_raw_close)
-        url      = grants_gov_url(opp_num) if opp_num else "https://www.grants.gov"
+        is_fr    = grant.get("source") == "federal_register"
+        url      = grants_gov_url(opp_num, grant=grant) if (opp_num or is_fr) else "https://www.grants.gov"
 
         border_color = "#e53935" if urgent else "#00897b"
         stars_str, match_label, match_color = stars_html(score)
@@ -722,6 +725,19 @@ def build_free_html(
 
         match_explanation = get_match_explanation(grant)
 
+        fr_badge_html = (
+            '<span style="display:inline-block;background:#e5e7eb;color:#4b5563;'
+            'font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;'
+            'margin-top:4px;">&#128203; Federal Register</span>'
+        ) if is_fr else ""
+
+        fr_early_alert_html = (
+            '<div style="font-size:11px;color:#6b7280;font-style:italic;margin-bottom:6px;">'
+            '&#9889; Early alert &mdash; may not yet appear on Grants.gov</div>'
+        ) if is_fr else ""
+
+        view_btn_text = "View on Federal Register &rarr;" if is_fr else "View on Grants.gov &rarr;"
+
         grant_cards += f"""
         <div style="background:#ffffff;border-radius:10px;
                     box-shadow:0 2px 8px rgba(0,0,0,0.08);
@@ -729,10 +745,11 @@ def build_free_html(
                     border-left:4px solid {border_color};">
           <div style="font-size:15px;font-weight:bold;color:#0f3460;
                       margin-bottom:6px;line-height:1.4;">{title}</div>
-          <div style="font-size:12px;color:#1565c0;margin-bottom:8px;">
+          <div style="font-size:12px;color:#1565c0;margin-bottom:4px;">
             &#127963; {agency}
           </div>
-          <div style="margin-bottom:4px;font-size:14px;">
+          {fr_badge_html}
+          <div style="margin-bottom:4px;font-size:14px;{'margin-top:6px;' if is_fr else ''}">
             {stars_str}
             <span style="font-size:12px;color:{match_color};
                          margin-left:6px;font-weight:600;">{match_label}</span>
@@ -744,12 +761,13 @@ def build_free_html(
             {close_html}
           </div>
           { ('<div style="font-size:13px;color:#5a6a7a;line-height:1.6;margin-bottom:14px;">' + synopsis_display + '</div>') if synopsis_display else '' }
+          {fr_early_alert_html}
           <div>
             <a href="{url}"
                style="display:inline-block;background:#00897b;color:#ffffff;
                       font-size:13px;font-weight:bold;padding:8px 18px;
                       border-radius:6px;text-decoration:none;">
-              View on Grants.gov &rarr;
+              {view_btn_text}
             </a>
           </div>
         </div>"""
@@ -878,7 +896,8 @@ def build_paid_html(grants: list[dict]) -> str:
         else:
             synopsis = synopsis_raw[:120]
         urgent   = is_urgent(_raw_close)
-        url      = grants_gov_url(opp_num) if opp_num else "https://www.grants.gov"
+        is_fr    = grant.get("source") == "federal_register"
+        url      = grants_gov_url(opp_num, grant=grant) if (opp_num or is_fr) else "https://www.grants.gov"
 
         border_color = "#e53935" if urgent else "#00897b"
         stars_str, match_label, match_color = stars_html(score)
@@ -896,6 +915,19 @@ def build_paid_html(grants: list[dict]) -> str:
         # Features 3 & 4: Quick Win badge + New/Reopened label
         grant_badges = get_grant_badges(grant)
 
+        fr_badge_html = (
+            '<span style="display:inline-block;background:#e5e7eb;color:#4b5563;'
+            'font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;'
+            'margin-top:4px;">&#128203; Federal Register</span>'
+        ) if is_fr else ""
+
+        fr_early_alert_html = (
+            '<div style="font-size:11px;color:#6b7280;font-style:italic;margin-bottom:6px;">'
+            '&#9889; Early alert &mdash; may not yet appear on Grants.gov</div>'
+        ) if is_fr else ""
+
+        view_btn_text = "View on Federal Register &rarr;" if is_fr else "View on Grants.gov &rarr;"
+
         grant_cards += f"""
         <div style="background:#ffffff;border-radius:10px;
                     box-shadow:0 2px 8px rgba(0,0,0,0.08);
@@ -905,10 +937,11 @@ def build_paid_html(grants: list[dict]) -> str:
                       margin-bottom:6px;line-height:1.4;">
             {title}{grant_badges}
           </div>
-          <div style="font-size:12px;color:#1565c0;margin-bottom:8px;">
+          <div style="font-size:12px;color:#1565c0;margin-bottom:4px;">
             &#127963; {agency}
           </div>
-          <div style="margin-bottom:8px;font-size:14px;">
+          {fr_badge_html}
+          <div style="margin-bottom:8px;font-size:14px;{'margin-top:6px;' if is_fr else ''}">
             {stars_str}
             <span style="font-size:12px;color:{match_color};
                          margin-left:6px;font-weight:600;">{match_label}</span>
@@ -917,12 +950,13 @@ def build_paid_html(grants: list[dict]) -> str:
             {close_html}
           </div>
           { ('<div style="font-size:13px;color:#5a6a7a;line-height:1.6;margin-bottom:14px;">' + synopsis_display + '</div>') if synopsis_display else '' }
+          {fr_early_alert_html}
           <div>
             <a href="{url}"
                style="display:inline-block;background:#00897b;color:#ffffff;
                       font-size:13px;font-weight:bold;padding:8px 18px;
                       border-radius:6px;text-decoration:none;">
-              View on Grants.gov &rarr;
+              {view_btn_text}
             </a>
           </div>
         </div>"""
@@ -1371,6 +1405,126 @@ def filter_grants_for_subscriber(grants: list, prefs: dict) -> list:
 
     return sorted(filtered, key=sort_key, reverse=True)
 
+
+# ---------------------------------------------------------------------------
+# Federal Register integration — early-alert grant notices
+# ---------------------------------------------------------------------------
+
+def _fr_title_similarity(title_a: str, title_b: str) -> float:
+    """Simple word-overlap similarity — no external libraries needed."""
+    words_a = set(title_a.lower().split())
+    words_b = set(title_b.lower().split())
+    if not words_a or not words_b:
+        return 0.0
+    return len(words_a & words_b) / max(len(words_a), len(words_b))
+
+
+def fetch_federal_register_grants(existing_grants: list[dict] | None = None) -> list[dict]:
+    """
+    Pull recent grant notices from the Federal Register API and normalize them
+    into the same dict format used by Grants.gov results.
+
+    Runs 3 separate search queries and deduplicates against existing_grants
+    (and against itself) by title similarity (>80% overlap → skip).
+    """
+    existing_grants = existing_grants or []
+    existing_titles = [g.get("title", "") for g in existing_grants]
+
+    SEARCH_TERMS = [
+        "grants nonprofit",
+        "funding opportunity nonprofit",
+        "grant program community",
+    ]
+
+    FR_BASE = "https://www.federalregister.gov/api/v1/documents.json"
+    FR_FIELDS = [
+        "title", "document_number", "publication_date",
+        "html_url", "abstract", "agencies", "dates",
+    ]
+
+    seen_doc_numbers: set[str] = set()
+    results: list[dict] = []
+
+    for term in SEARCH_TERMS:
+        try:
+            params: dict = {
+                "conditions[type][]": "NOTICE",
+                "conditions[term]": term,
+                "per_page": 100,
+                "order": "newest",
+            }
+            for f in FR_FIELDS:
+                params.setdefault("fields[]", [])
+                if isinstance(params["fields[]"], list):
+                    params["fields[]"].append(f)
+                else:
+                    params["fields[]"] = [params["fields[]"], f]
+
+            resp = requests.get(FR_BASE, params=params, timeout=20)
+            resp.raise_for_status()
+            data = resp.json()
+        except Exception as exc:
+            print(f"[federal-register] Warning: query '{term}' failed — {exc}")
+            continue
+
+        for doc in data.get("results", []):
+            doc_number = doc.get("document_number", "")
+            if not doc_number or doc_number in seen_doc_numbers:
+                continue
+
+            title = doc.get("title", "") or ""
+            if not title:
+                continue
+
+            # Deduplicate against existing Grants.gov results
+            skip = False
+            for et in existing_titles:
+                if _fr_title_similarity(title, et) > 0.80:
+                    skip = True
+                    break
+            if skip:
+                continue
+
+            # Deduplicate within FR results
+            already_similar = any(
+                _fr_title_similarity(title, r["title"]) > 0.80 for r in results
+            )
+            if already_similar:
+                continue
+
+            seen_doc_numbers.add(doc_number)
+
+            # Normalize dates
+            pub_raw = doc.get("publication_date", "") or ""
+            try:
+                open_date = datetime.datetime.strptime(pub_raw, "%Y-%m-%d").strftime("%m/%d/%Y")
+            except Exception:
+                open_date = pub_raw
+
+            # dates field from FR is a plain string like "Comments due May 26, 2026."
+            # We can't reliably extract a close date from it, so leave blank.
+            close_date = ""
+
+            agencies = doc.get("agencies") or []
+            agency_name = agencies[0]["name"] if agencies else "Federal Register"
+
+            abstract = doc.get("abstract") or ""
+
+            results.append({
+                "id": doc_number,
+                "title": title,
+                "agency": agency_name,
+                "openDate": open_date,
+                "closeDate": close_date,
+                "synopsis": abstract[:300] if abstract else "",
+                "number": doc_number,
+                "source": "federal_register",
+                "url": doc.get("html_url", "https://www.federalregister.gov"),
+            })
+
+    return results
+
+
 def main() -> None:
     print("=" * 60)
     print("  GrantSignal Weekly Digest Pipeline")
@@ -1390,6 +1544,12 @@ def main() -> None:
     if not grants:
         print("No grants fetched. Exiting.")
         sys.exit(1)
+
+    # Also fetch from Federal Register for early alerts
+    print("[federal-register] Fetching grant notices...")
+    fr_grants = fetch_federal_register_grants(existing_grants=grants)
+    print(f"[federal-register] Found {len(fr_grants)} additional opportunities")
+    grants.extend(fr_grants)
 
     # Deduplicate by grant ID
     seen_ids = set()
@@ -1497,4 +1657,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
 
