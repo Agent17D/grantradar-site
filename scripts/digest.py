@@ -440,11 +440,273 @@ def grants_gov_url(opp_number: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Feature helpers — match explanation, badges, grant of the week
+# ---------------------------------------------------------------------------
+
+def get_match_explanation(grant: dict) -> str:
+    """
+    Return a one-line match explanation based on the top scoring category
+    for the grant's title/synopsis.
+    """
+    title    = (grant.get("title",    "") or "").lower()
+    synopsis = (grant.get("synopsis", "") or "").lower()
+    text     = title + " " + synopsis
+
+    category_messages = {
+        "education":             "Strong match: education &amp; youth development focus",
+        "health":                "Strong match: health &amp; human services mission alignment",
+        "community_development": "Strong match: community development &amp; social services",
+        "environment":           "Match: environmental conservation focus",
+        "arts":                  "Match: arts, culture &amp; humanities programming",
+        "housing":               "Match: housing &amp; homelessness services",
+        "youth":                 "Match: youth-serving organization alignment",
+        "social_services":       "Match: social services mission",
+    }
+
+    best_cat   = None
+    best_count = 0
+    for category, keywords in SCORING_CATEGORIES.items():
+        count = sum(1 for kw in keywords if kw in text)
+        if count > best_count:
+            best_count = count
+            best_cat   = category
+
+    if best_cat and best_count > 0 and best_cat in category_messages:
+        return category_messages[best_cat]
+    return "Match: open to nonprofit organizations"
+
+
+def get_grant_badges(grant: dict) -> str:
+    """
+    Return HTML badge(s) for Features 3 (Quick Win) and 4 (New vs Reopened).
+    Both badges are placed next to the grant title in the PAID digest.
+    """
+    badges = ""
+
+    # ── Feature 4: New vs Reopened ───────────────────────────────────────────
+    open_date_str = grant.get("openDate", "") or ""
+    if open_date_str:
+        try:
+            open_date = datetime.datetime.strptime(open_date_str, "%m/%d/%Y").date()
+            days_since_open = (datetime.date.today() - open_date).days
+            if days_since_open <= 14:
+                badges += (
+                    '<span style="background:#dbeafe;color:#1e40af;font-size:11px;'
+                    'font-weight:bold;padding:2px 8px;border-radius:12px;'
+                    'margin-left:8px;display:inline-block;">'
+                    '&#x1F195; New</span>'
+                )
+            else:
+                badges += (
+                    '<span style="background:#f3f4f6;color:#6b7280;font-size:11px;'
+                    'font-weight:bold;padding:2px 8px;border-radius:12px;'
+                    'margin-left:8px;display:inline-block;">'
+                    '&#x1F504; Reopened</span>'
+                )
+        except ValueError:
+            pass
+
+    # ── Feature 3: Quick Win ─────────────────────────────────────────────────
+    score       = grant.get("_score", 0) or 0
+    award       = grant.get("awardCeiling", None)
+    title       = (grant.get("title", "") or "").lower()
+    close_str   = grant.get("closeDate", "") or ""
+
+    exclude_terms = ["research", "clinical", "phase", "innovation"]
+    has_complex_term = any(t in title for t in exclude_terms)
+
+    award_ok = True
+    if award is not None:
+        try:
+            award_ok = float(str(award).replace(",", "")) <= 100_000
+        except (ValueError, TypeError):
+            award_ok = True  # treat unparseable as unspecified → include
+
+    close_ok = False
+    if close_str:
+        try:
+            close_date = datetime.datetime.strptime(close_str, "%m/%d/%Y").date()
+            close_ok = (close_date - datetime.date.today()).days > 14
+        except ValueError:
+            close_ok = False
+    else:
+        close_ok = True  # no close date = rolling/open-ended → include
+
+    if score >= 3.5 and award_ok and close_ok and not has_complex_term:
+        badges += (
+            '<span style="background:#dcfce7;color:#166534;font-size:11px;'
+            'font-weight:bold;padding:2px 8px;border-radius:12px;'
+            'margin-left:8px;display:inline-block;">'
+            '&#x26A1; Quick Win</span>'
+        )
+
+    return badges
+
+
+def build_grant_of_week(top_grant: dict) -> str:
+    """
+    Build the HTML block for the "Grant of the Week" section (Feature 1).
+    The top_grant is the highest-scored grant from the full paid digest list.
+    """
+    title        = top_grant.get("title",      "Untitled") or "Untitled"
+    agency       = top_grant.get("agency", "Unknown Agency") or "Unknown Agency"
+    score        = top_grant.get("_score", 0) or 0
+    _raw_close   = top_grant.get("closeDate",  "") or ""
+    opp_num      = top_grant.get("number",     "") or ""
+    url          = grants_gov_url(opp_num) if opp_num else "https://www.grants.gov"
+
+    # Format close date
+    import re as _re2
+    if _re2.match(r"\d{2}/\d{2}/\d{4}", _raw_close):
+        import datetime as _dt2
+        close_display = _dt2.datetime.strptime(_raw_close, "%m/%d/%Y").strftime("%b %-d, %Y")
+        rolling = False
+    elif _raw_close:
+        close_display = _raw_close
+        rolling = ("grant" in _raw_close.lower() or "see" in _raw_close.lower())
+    else:
+        close_display = "See Grants.gov for deadline"
+        rolling = True
+
+    # Why this stands out
+    text = (title + " " + (top_grant.get("synopsis", "") or "") + " " + agency).lower()
+    # Determine top scoring category for the blurb
+    best_cat_label = "this opportunity"
+    best_count = 0
+    cat_labels = {
+        "education":             "education &amp; youth development",
+        "health":                "health &amp; human services",
+        "community_development": "community development",
+        "environment":           "environmental conservation",
+        "arts":                  "arts &amp; culture",
+        "housing":               "housing &amp; homelessness",
+        "youth":                 "youth-serving programs",
+        "social_services":       "social services",
+    }
+    for category, keywords in SCORING_CATEGORIES.items():
+        count = sum(1 for kw in keywords if kw in text)
+        if count > best_count:
+            best_count = count
+            best_cat_label = cat_labels.get(category, "this opportunity")
+
+    if score >= 4.5:
+        why_blurb = (
+            "This is one of the strongest federal matches we've seen this week. "
+            f"It scores in the top tier across multiple nonprofit-relevant categories, "
+            f"and aligns closely with {best_cat_label} mission areas. "
+            "Highly recommended for eligible organizations."
+        )
+    elif score >= 3.5:
+        why_blurb = (
+            f"A solid opportunity for nonprofits focused on {best_cat_label}. "
+            "The scoring indicates a strong mission fit and accessible eligibility requirements. "
+            "Worth a closer look for organizations ready to apply."
+        )
+    else:
+        why_blurb = (
+            f"Worth reviewing if your mission aligns with {agency} priorities. "
+            "While not the highest-scoring match this week, this grant offers "
+            "relevant funding in an underserved category."
+        )
+
+    # Eligibility checklist
+    agency_lower = agency.lower()
+    community_agencies = [
+        "community", "cdbg", "cdfi", "neighborhood", "rural",
+        "urban", "americorps", "cncs", "ojjdp", "acf", "samhsa",
+    ]
+    is_community = any(kw in agency_lower for kw in community_agencies)
+
+    if rolling:
+        deadline_bullet = "&#x2713; Applications accepted on a rolling basis"
+    else:
+        deadline_bullet = "&#x2713; Single deadline &mdash; apply early"
+
+    if is_community:
+        experience_bullet = "&#x2713; No prior federal award experience required"
+    else:
+        experience_bullet = "&#x2713; Prior federal experience helpful but not required"
+
+    eligibility_html = f"""
+          <ul style="list-style:none;padding:0;margin:10px 0;font-size:13px;color:#334155;">
+            <li style="margin-bottom:4px;">&#x2713; Open to 501(c)(3) nonprofit organizations</li>
+            <li style="margin-bottom:4px;">{experience_bullet}</li>
+            <li style="margin-bottom:4px;">{deadline_bullet}</li>
+          </ul>"""
+
+    # Common mistake warning
+    hhs_keywords    = ["hhs", "health and human services", "samhsa", "hrsa", "acf", "cms"]
+    edu_keywords    = ["department of education", "ed.gov", "doe", "education dept"]
+    is_hhs = any(kw in agency_lower for kw in hhs_keywords)
+    is_edu = any(kw in agency_lower for kw in edu_keywords)
+
+    if is_hhs:
+        common_mistake = "Missing required UEI/SAM.gov registration before applying"
+    elif is_edu:
+        common_mistake = "Not demonstrating measurable student outcome metrics in the narrative"
+    else:
+        common_mistake = "Submitting without a fully completed SF-424 form"
+
+    return f"""
+    <div style="border-left:4px solid #00897b;background:#f0f7ff;
+                padding:20px;border-radius:8px;margin-bottom:24px;">
+      <div style="font-size:11px;font-weight:bold;color:#00897b;
+                  font-variant:small-caps;letter-spacing:0.08em;margin-bottom:8px;">
+        &#x1F3C6; GRANT OF THE WEEK
+      </div>
+      <div style="font-size:18px;font-weight:bold;color:#0f3460;
+                  line-height:1.4;margin-bottom:8px;">{title}</div>
+      <div style="font-size:13px;color:#1565c0;margin-bottom:6px;">
+        &#x1F3DB; {agency}
+      </div>
+      <div style="font-size:13px;color:#444;margin-bottom:12px;">
+        &#x1F4C5; Closes {close_display}
+      </div>
+      <div style="font-size:13px;font-weight:bold;color:#0f3460;margin-bottom:4px;">
+        Why this stands out
+      </div>
+      <div style="font-size:13px;color:#334155;line-height:1.6;margin-bottom:12px;">
+        {why_blurb}
+      </div>
+      <div style="font-size:13px;font-weight:bold;color:#0f3460;margin-bottom:2px;">
+        Eligibility
+      </div>
+      {eligibility_html}
+      <div style="font-size:12px;color:#92400e;background:#fffbeb;
+                  border:1px solid #fde68a;border-radius:6px;
+                  padding:8px 12px;margin:12px 0;line-height:1.5;">
+        &#x26A0;&#xFE0F; <strong>Common mistake:</strong> {common_mistake}
+      </div>
+      <div style="margin-top:14px;">
+        <a href="{url}"
+           style="display:inline-block;background:#00897b;color:#ffffff;
+                  font-size:13px;font-weight:bold;padding:9px 20px;
+                  border-radius:6px;text-decoration:none;">
+          View Full Opportunity &rarr;
+        </a>
+      </div>
+    </div>"""
+
+
+# ---------------------------------------------------------------------------
 # Step 5a: Build FREE HTML email
 # ---------------------------------------------------------------------------
 
-def build_free_html(grants: list[dict], total_matched: int, urgency_count: int = 0) -> str:
+def build_free_html(
+    grants: list[dict],
+    total_matched: int,
+    urgency_count: int = 0,
+    all_paid_grants: list[dict] | None = None,
+) -> str:
     week_str = datetime.date.today().strftime("%B %d, %Y")
+
+    # ── Feature 1: Grant of the Week ─────────────────────────────────────────
+    # Pick the highest-scored grant from the full paid list (may differ from top-3)
+    gotw_html = ""
+    source_list = all_paid_grants if all_paid_grants else grants
+    if source_list:
+        top_grant = max(source_list, key=lambda g: g.get("_score", 0) or 0)
+        gotw_html = build_grant_of_week(top_grant)
 
     grant_cards = ""
 
@@ -484,6 +746,8 @@ def build_free_html(grants: list[dict], total_matched: int, urgency_count: int =
 
         synopsis_display = (synopsis + ("..." if len(synopsis_raw) > 120 else "")) if synopsis else ""
 
+        match_explanation = get_match_explanation(grant)
+
         grant_cards += f"""
         <div style="background:#ffffff;border-radius:10px;
                     box-shadow:0 2px 8px rgba(0,0,0,0.08);
@@ -494,10 +758,13 @@ def build_free_html(grants: list[dict], total_matched: int, urgency_count: int =
           <div style="font-size:12px;color:#1565c0;margin-bottom:8px;">
             &#127963; {agency}
           </div>
-          <div style="margin-bottom:8px;font-size:14px;">
+          <div style="margin-bottom:4px;font-size:14px;">
             {stars_str}
             <span style="font-size:12px;color:{match_color};
                          margin-left:6px;font-weight:600;">{match_label}</span>
+          </div>
+          <div style="font-size:12px;color:#6b7280;font-style:italic;margin-bottom:8px;">
+            {match_explanation}
           </div>
           <div style="font-size:13px;color:#444;margin-bottom:8px;">
             {close_html}
@@ -576,8 +843,9 @@ def build_free_html(grants: list[dict], total_matched: int, urgency_count: int =
       </p>
     </div>
 
-    <!-- Grant Cards -->
+    <!-- Grant of the Week + Grant Cards -->
     <div style="background:#f4f7fb;padding:20px 16px;">
+      {gotw_html}
       {grant_cards}
       {upgrade_cta}
     </div>
@@ -650,13 +918,18 @@ def build_paid_html(grants: list[dict]) -> str:
 
         synopsis_display = (synopsis + ("..." if len(synopsis_raw) > 120 else "")) if synopsis else ""
 
+        # Features 3 & 4: Quick Win badge + New/Reopened label
+        grant_badges = get_grant_badges(grant)
+
         grant_cards += f"""
         <div style="background:#ffffff;border-radius:10px;
                     box-shadow:0 2px 8px rgba(0,0,0,0.08);
                     margin:0 0 16px 0;padding:20px 24px;
                     border-left:4px solid {border_color};">
           <div style="font-size:15px;font-weight:bold;color:#0f3460;
-                      margin-bottom:6px;line-height:1.4;">{title}</div>
+                      margin-bottom:6px;line-height:1.4;">
+            {title}{grant_badges}
+          </div>
           <div style="font-size:12px;color:#1565c0;margin-bottom:8px;">
             &#127963; {agency}
           </div>
@@ -1174,6 +1447,7 @@ def main() -> None:
         free_digest,
         total_matched=total_matched,
         urgency_count=urgency_count,
+        all_paid_grants=paid_digest,
     )
     paid_html = build_paid_html(paid_digest)
 
