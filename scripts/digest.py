@@ -637,42 +637,22 @@ def build_grant_of_week(top_grant: dict) -> str:
 
     return f"""
     <div style="border-left:4px solid #00897b;background:#f0f7ff;
-                padding:20px;border-radius:8px;margin-bottom:24px;">
+                padding:16px 20px;border-radius:8px;margin-bottom:24px;">
       <div style="font-size:11px;font-weight:bold;color:#00897b;
-                  font-variant:small-caps;letter-spacing:0.08em;margin-bottom:8px;">
+                  letter-spacing:0.08em;margin-bottom:6px;">
         &#x1F3C6; GRANT OF THE WEEK
       </div>
-      <div style="font-size:18px;font-weight:bold;color:#0f3460;
-                  line-height:1.4;margin-bottom:8px;">{title}</div>
-      <div style="font-size:13px;color:#1565c0;margin-bottom:6px;">
-        &#x1F3DB; {agency}
-      </div>
-      <div style="font-size:13px;color:#444;margin-bottom:12px;">
-        &#x1F4C5; Closes {close_display}
-      </div>
-      <div style="font-size:13px;font-weight:bold;color:#0f3460;margin-bottom:4px;">
-        Why this stands out
-      </div>
-      <div style="font-size:13px;color:#334155;line-height:1.6;margin-bottom:12px;">
-        {why_blurb}
-      </div>
-      <div style="font-size:13px;font-weight:bold;color:#0f3460;margin-bottom:2px;">
-        Eligibility
-      </div>
-      {eligibility_html}
-      <div style="font-size:12px;color:#92400e;background:#fffbeb;
-                  border:1px solid #fde68a;border-radius:6px;
-                  padding:8px 12px;margin:12px 0;line-height:1.5;">
-        &#x26A0;&#xFE0F; <strong>Common mistake:</strong> {common_mistake}
-      </div>
-      <div style="margin-top:14px;">
-        <a href="{url}"
-           style="display:inline-block;background:#00897b;color:#ffffff;
-                  font-size:13px;font-weight:bold;padding:9px 20px;
-                  border-radius:6px;text-decoration:none;">
-          View Full Opportunity &rarr;
-        </a>
-      </div>
+      <div style="font-size:16px;font-weight:bold;color:#0f3460;
+                  line-height:1.4;margin-bottom:4px;">{title}</div>
+      <div style="font-size:12px;color:#1565c0;margin-bottom:4px;">&#x1F3DB; {agency}</div>
+      <div style="font-size:12px;color:#444;margin-bottom:8px;">&#x1F4C5; Closes {close_display}</div>
+      <div style="font-size:13px;color:#334155;margin-bottom:12px;">{why_blurb}</div>
+      <a href="{url}"
+         style="display:inline-block;background:#00897b;color:#ffffff;
+                font-size:13px;font-weight:bold;padding:8px 18px;
+                border-radius:6px;text-decoration:none;">
+        View Full Opportunity &rarr;
+      </a>
     </div>"""
 
 
@@ -840,8 +820,8 @@ def build_free_html(
 
     <!-- Grant of the Week + Grant Cards -->
     <div style="background:#f4f7fb;padding:20px 16px;">
-      {gotw_html}
       {grant_cards}
+      {gotw_html}
       {upgrade_cta}
     </div>
 
