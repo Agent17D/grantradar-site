@@ -1435,6 +1435,16 @@ def fetch_federal_register_grants(existing_grants: list[dict] | None = None) -> 
     existing_grants = existing_grants or []
     existing_titles = [g.get("title", "") for g in existing_grants]
 
+    # Exclude Federal Register notices that are NOT actual grant opportunities
+    FR_EXCLUDE_KEYWORDS = [
+        "information collection", "comment request", "paperwork reduction",
+        "agency information collection", "proposed information collection",
+        "notice of intent", "environmental impact", "record of decision",
+        "availability of", "request for information", "rfi",
+        "advance notice of proposed rulemaking", "anprm",
+        "notice of funding availability" # these go through Grants.gov already
+    ]
+
     SEARCH_TERMS = [
         "grants nonprofit",
         "funding opportunity nonprofit",
@@ -1479,6 +1489,10 @@ def fetch_federal_register_grants(existing_grants: list[dict] | None = None) -> 
 
             title = doc.get("title", "") or ""
             if not title:
+                continue
+            # Skip non-grant Federal Register notices
+            title_lower = title.lower()
+            if any(kw in title_lower for kw in FR_EXCLUDE_KEYWORDS):
                 continue
 
             # Deduplicate against existing Grants.gov results
