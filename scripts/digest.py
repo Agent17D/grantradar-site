@@ -591,24 +591,11 @@ def build_grant_of_week(top_grant: dict) -> str:
             best_cat_label = cat_labels.get(category, "this opportunity")
 
     if score >= 4.5:
-        why_blurb = (
-            "This is one of the strongest federal matches we've seen this week. "
-            f"It scores in the top tier across multiple nonprofit-relevant categories, "
-            f"and aligns closely with {best_cat_label} mission areas. "
-            "Highly recommended for eligible organizations."
-        )
+        why_blurb = f"Top-tier match for {best_cat_label} nonprofits. Highly recommended."
     elif score >= 3.5:
-        why_blurb = (
-            f"A solid opportunity for nonprofits focused on {best_cat_label}. "
-            "The scoring indicates a strong mission fit and accessible eligibility requirements. "
-            "Worth a closer look for organizations ready to apply."
-        )
+        why_blurb = f"Strong fit for nonprofits focused on {best_cat_label}. Worth a close look."
     else:
-        why_blurb = (
-            f"Worth reviewing if your mission aligns with {agency} priorities. "
-            "While not the highest-scoring match this week, this grant offers "
-            "relevant funding in an underserved category."
-        )
+        why_blurb = f"Relevant funding for {best_cat_label} — worth reviewing if it fits your mission."
 
     # Eligibility checklist
     agency_lower = agency.lower()
