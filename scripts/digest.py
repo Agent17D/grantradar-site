@@ -691,10 +691,13 @@ def build_free_html(
             return base + (1.5 if has_date else -1.0) + niche_penalty
         # Also hard-exclude known non-applicable grant types from GOTW
         GOTW_EXCLUDE = ["nagpra", "repatriation", "subaward", "sbir", "sttr",
-                        "information collection", "fellowship", "dissertation"]
+                        "information collection", "fellowship", "dissertation",
+                        "notice of proposed", "eons 2018", "modification",
+                        "cooperative agreement", "appendix"]
         filtered_source = [g for g in source_list
                           if not any(kw in (g.get("title","") or "").lower()
-                                    for kw in GOTW_EXCLUDE)]
+                                    for kw in GOTW_EXCLUDE)
+                          and (g.get("closeDate","") or "")]  # must have a close date
         if not filtered_source:
             filtered_source = source_list  # fallback if all excluded
         top_grant = max(filtered_source, key=gotw_score)
@@ -1444,7 +1447,10 @@ def fetch_federal_register_grants(existing_grants: list[dict] | None = None) -> 
         "notice of intent", "environmental impact", "record of decision",
         "availability of", "request for information", "rfi",
         "advance notice of proposed rulemaking", "anprm",
-        "notice of funding availability" # these go through Grants.gov already
+        "notice of funding availability",
+        "notice of proposed subaward", "proposed subaward",
+        "cooperative agreement modification", "grant modification",
+        "notice of award", "award announcement"
     ]
 
     SEARCH_TERMS = [
