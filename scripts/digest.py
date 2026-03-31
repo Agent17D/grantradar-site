@@ -776,8 +776,7 @@ def build_free_html(
           <div style="font-size:13px;color:#444;margin-bottom:8px;">
             {close_html}
           </div>
-          <!-- synopsis removed to keep email under Gmail clip threshold -->
-          {fr_early_alert_html}
+                {fr_early_alert_html}
           <div>
             <a href="{url}"
                style="display:inline-block;background:#00897b;color:#ffffff;
@@ -818,12 +817,10 @@ def build_free_html(
   <!-- Preheader text (controls Gmail preview snippet) -->
   <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
     Your top 3 federal grant matches this week — curated for nonprofits and schools.
-    &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
   </div>
 
   <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
 
-    <!-- Header -->
     <table width="100%" cellpadding="0" cellspacing="0"
            style="background:#0f3460;border-radius:10px 10px 0 0;">
       <tr>
@@ -858,7 +855,6 @@ def build_free_html(
       {upgrade_cta}
     </div>
 
-    <!-- Footer -->
     <div style="background:#e8eef4;padding:16px 28px;
                 border-radius:0 0 10px 10px;text-align:center;">
       <div style="font-size:13px;color:#5a6a7a;font-weight:600;">
@@ -964,8 +960,7 @@ def build_paid_html(grants: list[dict]) -> str:
           <div style="font-size:13px;color:#444;margin-bottom:8px;">
             {close_html}
           </div>
-          <!-- synopsis removed to keep email under Gmail clip threshold -->
-          {fr_early_alert_html}
+                {fr_early_alert_html}
           <div>
             <a href="{url}"
                style="display:inline-block;background:#00897b;color:#ffffff;
@@ -997,12 +992,10 @@ def build_paid_html(grants: list[dict]) -> str:
   <!-- Preheader text (controls Gmail preview snippet) -->
   <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
     Your top 3 federal grant matches this week — curated for nonprofits and schools.
-    &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
   </div>
 
   <div style="max-width:600px;margin:0 auto;padding:24px 16px;">
 
-    <!-- Header -->
     <table width="100%" cellpadding="0" cellspacing="0"
            style="background:#0f3460;border-radius:10px 10px 0 0;">
       <tr>
@@ -1036,7 +1029,6 @@ def build_paid_html(grants: list[dict]) -> str:
       {tip_section}
     </div>
 
-    <!-- Footer -->
     <div style="background:#e8eef4;padding:16px 28px;
                 border-radius:0 0 10px 10px;text-align:center;">
       <div style="font-size:13px;color:#5a6a7a;font-weight:600;">
