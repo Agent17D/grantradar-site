@@ -576,6 +576,7 @@ def build_grant_of_week(top_grant: dict) -> str:
     # Determine top scoring category for the blurb
     best_cat_label = "this opportunity"
     best_count = 0
+    MIN_KEYWORD_HITS = 2  # require at least 2 keyword matches to claim a category
     cat_labels = {
         "education":             "education &amp; youth development",
         "health":                "health &amp; human services",
@@ -588,7 +589,7 @@ def build_grant_of_week(top_grant: dict) -> str:
     }
     for category, keywords in SCORING_CATEGORIES.items():
         count = sum(1 for kw in keywords if kw in text)
-        if count > best_count:
+        if count > best_count and count >= MIN_KEYWORD_HITS:
             best_count = count
             best_cat_label = cat_labels.get(category, "this opportunity")
 
@@ -683,7 +684,9 @@ def build_free_html(
             title = (g.get("title", "") or "").lower()
             niche_keywords = ["repatriation", "tribal", "nagpra", "sbir", "sttr",
                               "dissertation", "fellowship", "research training", "postdoctoral",
-                              "information collection", "comment request", "paperwork reduction"]
+                              "information collection", "comment request", "paperwork reduction",
+                              "subaward", "proposed subaward", "notice of subaward",
+                              "cooperative agreement modification", "amendment"]
             niche_penalty = -2.0 if any(kw in title for kw in niche_keywords) else 0.0
             return base + (1.5 if has_date else -1.0) + niche_penalty
         top_grant = max(source_list, key=gotw_score)
@@ -765,7 +768,7 @@ def build_free_html(
           <div style="font-size:13px;color:#444;margin-bottom:8px;">
             {close_html}
           </div>
-          { ('<div style="font-size:13px;color:#5a6a7a;line-height:1.6;margin-bottom:14px;">' + synopsis_display + '</div>') if synopsis_display else '' }
+          <!-- synopsis removed to keep email under Gmail clip threshold -->
           {fr_early_alert_html}
           <div>
             <a href="{url}"
@@ -954,7 +957,7 @@ def build_paid_html(grants: list[dict]) -> str:
           <div style="font-size:13px;color:#444;margin-bottom:8px;">
             {close_html}
           </div>
-          { ('<div style="font-size:13px;color:#5a6a7a;line-height:1.6;margin-bottom:14px;">' + synopsis_display + '</div>') if synopsis_display else '' }
+          <!-- synopsis removed to keep email under Gmail clip threshold -->
           {fr_early_alert_html}
           <div>
             <a href="{url}"
