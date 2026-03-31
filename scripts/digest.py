@@ -881,6 +881,98 @@ def build_free_html(
 
 
 # ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
+# Timeline Generator (Feature 3)
+# ---------------------------------------------------------------------------
+
+def build_timeline_section(grants: list[dict]) -> str:
+    """
+    Generate an HTML "Application Timeline" section for the paid digest.
+    Finds the single highest-scored grant with a real close date that is NOT urgent
+    (more than 14 days away) and generates a backwards project timeline.
+    Returns an HTML string, or empty string if no suitable grant found.
+    """
+    import re as _re
+    import datetime as _dt
+
+    today = _dt.date.today()
+
+    # Find grants with real close dates (MM/DD/YYYY) that are NOT urgent (>14 days)
+    candidates = []
+    for g in grants:
+        raw_close = g.get("closeDate", "") or ""
+        if not _re.match(r"\d{2}/\d{2}/\d{4}", raw_close):
+            continue
+        try:
+            close_dt = _dt.datetime.strptime(raw_close, "%m/%d/%Y").date()
+        except ValueError:
+            continue
+        days_until = (close_dt - today).days
+        if days_until <= 14:
+            continue  # Skip urgent grants
+        candidates.append((g.get("_score", 0), close_dt, g))
+
+    if not candidates:
+        return ""
+
+    # Pick the highest-scored grant
+    candidates.sort(key=lambda x: x[0], reverse=True)
+    _, close_date, grant = candidates[0]
+
+    title = grant.get("title", "Untitled") or "Untitled"
+    close_str = close_date.strftime("%B %-d, %Y")
+    opp_num = grant.get("number", "") or ""
+    is_fr = grant.get("source") == "federal_register"
+    url = grants_gov_url(opp_num, grant=grant) if (opp_num or is_fr) else "https://www.grants.gov"
+
+    # Build backwards timeline steps
+    timeline_steps = [
+        (close_date - _dt.timedelta(weeks=6), "Start prospect research & eligibility check"),
+        (close_date - _dt.timedelta(weeks=4), "Draft grant narrative"),
+        (close_date - _dt.timedelta(weeks=3), "Internal review"),
+        (close_date - _dt.timedelta(weeks=2), "Finalize budget & attachments"),
+        (close_date - _dt.timedelta(weeks=1), "Final review & proofread"),
+        (close_date - _dt.timedelta(days=2),  "Submit application"),
+    ]
+
+    steps_html = ""
+    for step_date, task in timeline_steps:
+        date_str = step_date.strftime("%a %b %-d")
+        steps_html += f"""
+          <div style="display:flex;align-items:flex-start;margin-bottom:10px;">
+            <div style="width:10px;height:10px;min-width:10px;background:#f59e0b;
+                        border-radius:50%;margin-top:4px;margin-right:12px;"></div>
+            <div>
+              <span style="font-size:12px;font-weight:700;color:#92400e;">{date_str}</span>
+              <span style="font-size:13px;color:#44403c;margin-left:8px;">{task}</span>
+            </div>
+          </div>"""
+
+    return f"""
+    <div style="background:#fffbeb;border-left:4px solid #f59e0b;border-radius:8px;
+                padding:16px 20px;margin:0 0 16px 0;">
+      <div style="font-size:11px;font-weight:700;color:#d97706;letter-spacing:0.08em;
+                  text-transform:uppercase;margin-bottom:10px;">
+        &#128197; Application Timeline
+      </div>
+      <div style="font-size:15px;font-weight:700;color:#0f3460;margin-bottom:4px;
+                  line-height:1.4;">
+        {title}
+      </div>
+      <div style="font-size:12px;color:#78716c;margin-bottom:14px;">
+        Closes {close_str}
+      </div>
+      {steps_html}
+      <div style="margin-top:14px;">
+        <a href="{url}" target="_blank"
+           style="font-size:13px;font-weight:600;color:#00897b;text-decoration:none;">
+          Start planning today &#8594;
+        </a>
+      </div>
+    </div>"""
+
 # Step 5b: Build PAID HTML email
 # ---------------------------------------------------------------------------
 
@@ -984,6 +1076,9 @@ def build_paid_html(grants: list[dict]) -> str:
       <div style="font-size:14px;color:#1565c0;line-height:1.6;">{tip}</div>
     </div>"""
 
+    # Build application timeline for the highest-scored non-urgent grant
+    timeline_section = build_timeline_section(grants)
+
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1031,6 +1126,7 @@ def build_paid_html(grants: list[dict]) -> str:
     <!-- Grant Cards -->
     <div style="background:#f4f7fb;padding:20px 16px;">
       {grant_cards}
+      {timeline_section}
       {tip_section}
     </div>
 
