@@ -680,7 +680,12 @@ def build_free_html(
             base = float(g.get("_score", 0) or g.get("score", 0) or 0)
             close = g.get("closeDate", "") or ""
             has_date = bool(_re.match(r"\d{2}/\d{2}/\d{4}", close))
-            return base + (1.5 if has_date else -1.0)
+            title = (g.get("title", "") or "").lower()
+            niche_keywords = ["repatriation", "tribal", "nagpra", "sbir", "sttr",
+                              "dissertation", "fellowship", "research training", "postdoctoral",
+                              "information collection", "comment request", "paperwork reduction"]
+            niche_penalty = -2.0 if any(kw in title for kw in niche_keywords) else 0.0
+            return base + (1.5 if has_date else -1.0) + niche_penalty
         top_grant = max(source_list, key=gotw_score)
         gotw_html = build_grant_of_week(top_grant)
 
@@ -779,7 +784,7 @@ def build_free_html(
       </div>
       <div style="color:#90a8c0;font-size:13px;line-height:1.5;margin-bottom:18px;">
         Upgrade to Basic to see all {total_matched} opportunities &mdash;
-        including {urgency_count} closing soon
+        {f"including {urgency_count} closing soon" if urgency_count > 0 else "apply before deadlines close"}
       </div>
       <a href="https://dereks-newsletter-be7bae.beehiiv.com/upgrade"
          style="display:inline-block;background:#00897b;color:#ffffff;
