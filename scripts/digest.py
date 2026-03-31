@@ -63,6 +63,7 @@ EXCLUDE_TITLE_PATTERNS = [
     "Clinical Trial", "Dissertation", "Fellowship", "Postdoctoral",
     "Career Development Award",
     "EONS 2018", "Appendix E", "MUREP",
+    "NAGPRA", "Repatriation Grants", "Subaward",
 ]
 
 # Agency name patterns that indicate research agencies
