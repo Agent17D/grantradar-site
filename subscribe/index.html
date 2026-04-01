@@ -353,7 +353,7 @@
 
 <script>
   async function submitToBeehiiv(email, firstName) {
-    const url = 'https://api.beehiiv.com/v2/publications/pub_ccc586a8-bcb6-45fa-b2e6-3bc97866c4ea/subscriptions';
+    const url = 'https://grantsignal.news/api/subscribe';
     const body = {
       email: email,
       reactivate_existing: true,
@@ -368,8 +368,7 @@
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer FbiJL9DwllTQwm8iDdCkdvsRBGriA7qQpQUPYac3mygjjnSwMB6HGejhYUoevG47'
-        },
+          },
         body: JSON.stringify(body)
       });
       return { ok: resp.status === 200 || resp.status === 201, status: resp.status };
