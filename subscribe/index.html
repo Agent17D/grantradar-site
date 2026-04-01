@@ -228,7 +228,7 @@
         <h3>You're subscribed! 🎉</h3>
         <p class="arrival">Your first digest arrives this Tuesday at 7am CT.</p>
         <p class="next-step">One more step — tell us about your organization so we can personalize your digest:</p>
-        <a href="https://grantsignal.news/onboarding" class="btn-onboarding">Complete Your Profile →</a>
+        <a href="https://grantsignal.news/welcome" class="btn-onboarding">Complete Your Profile →</a>
         <p class="success-note">Takes 2 minutes. Helps us find the most relevant grants for you.</p>
       </div>
     </div>
@@ -415,8 +415,8 @@
     }
 
     if (result.ok) {
-      document.getElementById('formState').style.display = 'none';
-      document.getElementById('successState').classList.add('visible');
+      window.location.href = 'https://grantsignal.news/welcome';
+      return;
     } else {
       btn.disabled = false;
       btn.textContent = 'Subscribe Free →';
@@ -446,11 +446,8 @@
     }
 
     if (result.ok) {
-      // Scroll to top and show success on main form
-      document.getElementById('emailInput').value = email;
-      document.getElementById('formState').style.display = 'none';
-      document.getElementById('successState').classList.add('visible');
-      document.getElementById('subscribe').scrollIntoView({ behavior: 'smooth' });
+      window.location.href = 'https://grantsignal.news/welcome';
+      return;
     } else {
       btn.disabled = false;
       btn.textContent = 'Subscribe Free →';
@@ -473,3 +470,4 @@
 </script>
 </body>
 </html>
+
