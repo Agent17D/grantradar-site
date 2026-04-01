@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="You're subscribed to GrantSignal — federal grant alerts for nonprofits and schools. Here's what happens next.">
+  <meta property="og:title" content="Welcome to GrantSignal 🎉">
+  <meta property="og:description" content="You're subscribed. Your first digest arrives this Tuesday at 7am CT.">
+  <meta property="og:url" content="https://grantsignal.news/welcome">
+  <meta property="og:type" content="website">
+  <title>Welcome to GrantSignal 🎉 — You're Subscribed!</title>
+  <style>
+    :root {
+      --navy:#0f3460;--blue:#1565c0;--blue-light:#4fc3f7;--teal:#00897b;--teal-light:#4db6ac;
+      --bg:#ffffff;--bg-alt:#f4f7fb;--text:#1a1a2e;--text-muted:#5a6a7a;--border:#dde4ed;
+      --radius:10px;--shadow:0 4px 24px rgba(15,52,96,0.10);
+    }
+    @media(prefers-color-scheme:dark){:root{--bg:#0d1b2a;--bg-alt:#13243a;--text:#e8f0fe;--text-muted:#8aacc8;--border:#1e3a5f;--shadow:0 4px 24px rgba(0,0,0,0.40);}}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:linear-gradient(150deg,var(--navy) 0%,#163d6e 55%,#1a4f6e 100%);color:var(--text);line-height:1.7;font-size:16px;min-height:100vh;}
+    a{color:var(--blue);text-decoration:none;}a:hover{text-decoration:underline;}
+
+    /* NAV */
+    nav{background:rgba(15,52,96,0.85);backdrop-filter:blur(8px);padding:0 24px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.20);}
+    .nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px;}
+    .nav-logo{font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;text-decoration:none;}
+    .nav-logo .signal{color:var(--blue-light);}
+    .nav-links{display:flex;gap:24px;list-style:none;}
+    .nav-links a{color:#b0c4de;font-size:14px;font-weight:500;transition:color 0.2s;}
+    .nav-links a:hover{color:#fff;text-decoration:none;}
+    .nav-cta{background:var(--teal);color:#fff!important;padding:7px 16px;border-radius:20px;font-weight:700!important;font-size:13px!important;}
+    .nav-cta:hover{background:var(--teal-light)!important;}
+
+    /* PAGE LAYOUT */
+    .page-wrap{min-height:calc(100vh - 58px);display:flex;align-items:flex-start;justify-content:center;padding:48px 20px 64px;}
+
+    /* WELCOME CARD */
+    .welcome-card{background:var(--bg);border-radius:16px;box-shadow:0 8px 48px rgba(0,0,0,0.25);max-width:600px;width:100%;overflow:hidden;}
+    .card-body{padding:44px 40px 36px;}
+
+    /* ANIMATED CHECKMARK */
+    @keyframes check-pop {
+      0%   { transform: scale(0) rotate(-15deg); opacity: 0; }
+      60%  { transform: scale(1.18) rotate(4deg); opacity: 1; }
+      80%  { transform: scale(0.94) rotate(-1deg); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    @keyframes check-stroke {
+      0%   { stroke-dashoffset: 60; opacity: 0; }
+      30%  { opacity: 1; }
+      100% { stroke-dashoffset: 0; opacity: 1; }
+    }
+    .check-wrap{text-align:center;margin-bottom:24px;}
+    .check-circle{
+      width:88px;height:88px;border-radius:50%;
+      background:rgba(0,137,123,0.10);
+      border:3px solid var(--teal);
+      display:inline-flex;align-items:center;justify-content:center;
+      animation:check-pop 0.5s cubic-bezier(0.175,0.885,0.32,1.275) 0.1s both;
+      position:relative;
+    }
+    .check-circle::after{
+      content:'';
+      position:absolute;
+      width:34px;height:19px;
+      border-left:4px solid var(--teal);
+      border-bottom:4px solid var(--teal);
+      border-radius:0 0 0 2px;
+      transform:rotate(-47deg) translate(4px,-3px);
+    }
+
+    /* HEADER TEXT */
+    .welcome-title{font-size:clamp(22px,5vw,30px);font-weight:800;color:var(--navy);text-align:center;line-height:1.2;margin-bottom:10px;}
+    @media(prefers-color-scheme:dark){.welcome-title{color:var(--blue-light);}}
+    .welcome-subtitle{font-size:15px;color:var(--text-muted);text-align:center;margin-bottom:36px;}
+
+    /* STEPS */
+    .steps-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:18px;}
+    .step{display:flex;gap:18px;align-items:flex-start;margin-bottom:24px;}
+    .step:last-child{margin-bottom:0;}
+    .step-num{
+      width:36px;height:36px;min-width:36px;border-radius:50%;
+      background:var(--navy);color:var(--blue-light);
+      font-size:14px;font-weight:800;
+      display:flex;align-items:center;justify-content:center;
+      margin-top:2px;
+    }
+    .step-icon{font-size:22px;margin-top:3px;min-width:26px;}
+    .step-content h3{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;}
+    .step-content p{font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:10px;}
+    .btn-primary{display:inline-block;background:var(--teal);color:#fff;font-size:14px;font-weight:700;padding:10px 20px;border-radius:6px;transition:background 0.2s,transform 0.1s;box-shadow:0 3px 12px rgba(0,137,123,0.30);}
+    .btn-primary:hover{background:#00796b;transform:translateY(-1px);text-decoration:none;}
+    .btn-outline{display:inline-block;background:transparent;color:var(--teal);font-size:14px;font-weight:700;padding:9px 18px;border-radius:6px;border:2px solid var(--teal);transition:background 0.2s,color 0.2s;}
+    .btn-outline:hover{background:var(--teal);color:#fff;text-decoration:none;}
+
+    /* DIVIDER */
+    .divider{border:none;border-top:1px solid var(--border);margin:32px 0;}
+
+    /* SHARE SECTION */
+    .share-section{background:var(--bg-alt);border-radius:10px;padding:24px 28px;}
+    .share-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;}
+    .share-sub{font-size:13px;color:var(--text-muted);margin-bottom:18px;}
+    .share-buttons{display:flex;gap:12px;flex-wrap:wrap;}
+    .btn-linkedin{display:inline-flex;align-items:center;gap:7px;background:#0077b5;color:#fff;font-size:14px;font-weight:700;padding:10px 18px;border-radius:6px;transition:background 0.2s;}
+    .btn-linkedin:hover{background:#005c8e;text-decoration:none;color:#fff;}
+    .btn-copy{display:inline-flex;align-items:center;gap:7px;background:transparent;color:var(--navy);font-size:14px;font-weight:700;padding:9px 18px;border-radius:6px;border:2px solid var(--border);cursor:pointer;transition:border-color 0.2s,color 0.2s;font-family:inherit;}
+    .btn-copy:hover{border-color:var(--navy);color:var(--navy);}
+    .btn-copy.copied{background:#e8f5e9;border-color:#43a047;color:#2e7d32;}
+    @media(prefers-color-scheme:dark){.btn-copy{color:var(--text);border-color:var(--border);} .btn-copy:hover{border-color:var(--blue-light);color:var(--blue-light);}}
+
+    /* FOOTER CARD */
+    .card-footer{padding:20px 40px 28px;text-align:center;border-top:1px solid var(--border);}
+    .card-footer-note{font-size:12px;color:var(--text-muted);margin-bottom:10px;}
+    .card-footer-note a{color:var(--teal);}
+    .back-link{font-size:13px;color:var(--text-muted);display:inline-flex;align-items:center;gap:5px;}
+    .back-link:hover{color:var(--navy);text-decoration:none;}
+    @media(prefers-color-scheme:dark){.back-link:hover{color:var(--blue-light);}}
+
+    /* FOOTER */
+    footer{background:var(--navy);padding:48px 24px 32px;color:#90a8c0;font-size:13px;}
+    .footer-inner{max-width:900px;margin:0 auto;}
+    .footer-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:32px;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:24px;}
+    .footer-brand-name{font-size:18px;font-weight:800;color:#fff;margin-bottom:6px;}
+    .footer-brand-name span{color:var(--blue-light);}
+    .footer-tagline{font-size:12px;color:#607d96;}
+    .footer-links-group h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#607d96;margin-bottom:10px;}
+    .footer-links-group ul{list-style:none;}
+    .footer-links-group li{margin-bottom:7px;}
+    .footer-links-group a{color:#90a8c0;font-size:13px;}
+    .footer-links-group a:hover{color:#fff;text-decoration:none;}
+    .footer-bottom{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;}
+    .footer-address{font-size:11px;color:#4a6278;line-height:1.7;}
+    .footer-copy{font-size:11px;color:#4a6278;}
+
+    @media(max-width:600px){
+      .nav-links{display:none;}
+      .page-wrap{padding:28px 16px 48px;}
+      .card-body{padding:32px 24px 24px;}
+      .card-footer{padding:18px 24px 24px;}
+      .share-section{padding:20px;}
+      .share-buttons{flex-direction:column;}
+      .btn-linkedin,.btn-copy{width:100%;justify-content:center;}
+      .footer-top{flex-direction:column;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="https://grantsignal.news" class="nav-logo">📡 Grant<span class="signal">Signal</span></a>
+    <ul class="nav-links">
+      <li><a href="https://grantsignal.news#how-it-works">How it works</a></li>
+      <li><a href="https://grantsignal.news#features">Features</a></li>
+      <li><a href="https://grantsignal.news#pricing">Pricing</a></li>
+      <li><a href="https://grantsignal.news/archive">Past Digests</a></li>
+      <li><a href="https://grantsignal.news/onboarding" class="nav-cta">Complete Profile →</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="page-wrap">
+  <div class="welcome-card">
+    <div class="card-body">
+
+      <!-- ANIMATED CHECKMARK -->
+      <div class="check-wrap">
+        <div class="check-circle"></div>
+      </div>
+
+      <!-- HEADER -->
+      <h1 class="welcome-title">Welcome to GrantSignal! 🎉</h1>
+      <p class="welcome-subtitle">You're subscribed. Your first digest arrives this Tuesday at 7am CT.</p>
+
+      <!-- WHAT HAPPENS NEXT -->
+      <div class="steps-label">What happens next</div>
+
+      <!-- STEP 1 -->
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <div style="font-size:22px;margin-bottom:6px;">📬</div>
+          <div class="step-content">
+            <h3>Check your inbox Tuesday morning</h3>
+            <p>Your first digest will arrive at 7am CT with federal grant matches curated for nonprofits and schools.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <div style="font-size:22px;margin-bottom:6px;">🎯</div>
+          <div class="step-content">
+            <h3>Personalize your digest</h3>
+            <p>Tell us about your organization so we can surface the most relevant grants for your mission.</p>
+            <a href="https://grantsignal.news/onboarding" class="btn-primary">Complete Your Profile →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <div style="font-size:22px;margin-bottom:6px;">📡</div>
+          <div class="step-content">
+            <h3>Explore past digests</h3>
+            <p>Browse previous issues to see what kinds of grants we surface.</p>
+            <a href="https://grantsignal.news/archive" class="btn-outline">View Archive →</a>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- SHARE SECTION -->
+      <div class="share-section">
+        <div class="share-title">Know someone who could use this?</div>
+        <div class="share-sub">Help another nonprofit or school find funding they deserve.</div>
+        <div class="share-buttons">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://grantsignal.news"
+             target="_blank" rel="noopener" class="btn-linkedin">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            Share on LinkedIn
+          </a>
+          <button class="btn-copy" id="copyBtn" onclick="copyLink()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <span id="copyBtnText">Copy Link</span>
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /card-body -->
+
+    <!-- CARD FOOTER -->
+    <div class="card-footer">
+      <p class="card-footer-note">Questions? Email us at <a href="mailto:support@grantsignal.news">support@grantsignal.news</a></p>
+      <a href="https://grantsignal.news" class="back-link">← Back to grantsignal.news</a>
+    </div>
+  </div>
+</div>
+
+<!-- SITE FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand-name">📡 Grant<span>Signal</span></div>
+        <div class="footer-tagline">Federal Grant Discovery for Nonprofits &amp; Schools</div>
+      </div>
+      <div class="footer-links-group">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="https://grantsignal.news#features">Features</a></li>
+          <li><a href="https://grantsignal.news#pricing">Pricing</a></li>
+          <li><a href="https://grantsignal.news/archive">Past Digests</a></li>
+          <li><a href="https://grantsignal.news/subscribe">Subscribe</a></li>
+        </ul>
+      </div>
+      <div class="footer-links-group">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="/privacy">Privacy Policy</a></li>
+          <li><a href="/terms">Terms of Service</a></li>
+          <li><a href="mailto:support@grantsignal.news">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-links-group">
+        <h4>Data</h4>
+        <ul>
+          <li><a href="https://www.grants.gov" target="_blank">Grants.gov</a></li>
+          <li><a href="https://grantsignal.news/archive">Digest Archive</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-address">
+        GrantSignal &nbsp;·&nbsp; 1401 Westbank Expressway, Suite 109, Westwego, LA 70094<br>
+        GrantSignal curates publicly available federal grant data from Grants.gov.<br>
+        Not affiliated with any U.S. federal agency. Not legal or financial advice.
+      </div>
+      <div class="footer-copy">© 2026 GrantSignal. All rights reserved.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function copyLink() {
+    const url = 'https://grantsignal.news';
+    const btn = document.getElementById('copyBtn');
+    const btnText = document.getElementById('copyBtnText');
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => {
+        showCopied(btn, btnText);
+      }).catch(() => {
+        fallbackCopy(url, btn, btnText);
+      });
+    } else {
+      fallbackCopy(url, btn, btnText);
+    }
+  }
+
+  function fallbackCopy(text, btn, btnText) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-999px;left:-999px;opacity:0;';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try { document.execCommand('copy'); showCopied(btn, btnText); } catch(e) {}
+    document.body.removeChild(ta);
+  }
+
+  function showCopied(btn, btnText) {
+    btn.classList.add('copied');
+    btnText.textContent = 'Copied! ✓';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btnText.textContent = 'Copy Link';
+    }, 2500);
+  }
+</script>
+</body>
+</html>
