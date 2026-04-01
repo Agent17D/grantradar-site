@@ -62,7 +62,7 @@
     .radio-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.15s;background:var(--bg);}
     .radio-item:hover{border-color:var(--teal);background:rgba(0,137,123,0.04);}
     .radio-item.selected{border-color:var(--teal);background:rgba(0,137,123,0.08);}
-    .radio-item input[type="radio"]{accent-color:var(--teal);width:16px;height:16px;cursor:pointer;flex-shrink:0;}
+    .radio-item input[type="radio"]{accent-color:var(--teal);width:20px;height:20px;min-width:20px;cursor:pointer;flex-shrink:0;pointer-events:none;}
     .radio-item label{font-size:14px;cursor:pointer;color:var(--text);user-select:none;flex:1;}
     .radio-item.selected label{color:var(--teal);font-weight:600;}
 
@@ -71,7 +71,7 @@
     .checkbox-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.15s;background:var(--bg);}
     .checkbox-item:hover{border-color:var(--teal);background:rgba(0,137,123,0.04);}
     .checkbox-item.selected{border-color:var(--teal);background:rgba(0,137,123,0.08);}
-    .checkbox-item input[type="checkbox"]{accent-color:var(--teal);width:16px;height:16px;cursor:pointer;flex-shrink:0;}
+    .checkbox-item input[type="checkbox"]{accent-color:var(--teal);width:20px;height:20px;min-width:20px;cursor:pointer;flex-shrink:0;pointer-events:none;}
     .checkbox-item label{font-size:14px;cursor:pointer;color:var(--text);user-select:none;flex:1;}
     .checkbox-item.selected label{color:var(--teal);font-weight:600;}
 
@@ -550,7 +550,7 @@
       <div class="btn-spacer"></div>
       <button class="btn-next" id="submitBtn" onclick="submitSurvey()" style="background:var(--navy);box-shadow:0 4px 16px rgba(15,52,96,0.30);">Complete Setup →</button>
     </div>
-    <div class="api-error-msg" id="apiError">We couldn't save your preferences right now — you'll still receive your digest. Email <a href="mailto:support@grantsignal.news">support@grantsignal.news</a> to set up personalization manually.</div>
+    <div class="api-error-msg" id="apiError">We couldn't save your preferences right now — you'll still receive your digest. <button onclick="retrySubmit()" style="background:none;border:none;color:#1565c0;font-size:13px;font-weight:700;cursor:pointer;padding:0;text-decoration:underline;">Try Again</button> or email <a href="mailto:support@grantsignal.news">support@grantsignal.news</a> to set up personalization manually. <span id="apiErrorAutoMsg" style="display:none;font-style:italic;"> Proceeding automatically…</span></div>
   </div>
 
   <!-- ===== SUCCESS ===== -->
@@ -643,7 +643,11 @@
   // ── Checkbox toggle ────────────────────────────────────
   function toggleCheckbox(el, special) {
     var cb = el.querySelector('input[type="checkbox"]');
-    cb.checked = !cb.checked;
+    // If the click came directly from the checkbox input, the browser already
+    // toggled it — don't flip it again. For all other clicks, toggle manually.
+    if (event && event.target !== cb) {
+      cb.checked = !cb.checked;
+    }
     el.classList.toggle('selected', cb.checked);
 
     // "None of the above" clears others in same list
@@ -766,27 +770,52 @@
       body: JSON.stringify(survey)
     })
     .then(function(res) {
+      if (!res.ok) {
+        return res.text().then(function(text) {
+          console.error('[GrantSignal] Preferences API error:', res.status, res.statusText, text);
+          throw new Error('HTTP ' + res.status + ': ' + text);
+        });
+      }
       return res.json();
     })
     .then(function(data) {
+      console.log('[GrantSignal] Preferences API response:', data);
       if (data && data.success) {
-        // Show success screen
-        document.getElementById('step3').classList.remove('active');
-        document.getElementById('progressContainer').style.display = 'none';
-        document.getElementById('successScreen').classList.add('visible');
-        window.scrollTo({top: 0, behavior: 'smooth'});
+        showSuccessScreen();
       } else {
-        throw new Error(data && data.error ? data.error : 'Unknown error');
+        throw new Error(data && data.error ? data.error : 'Unknown error: ' + JSON.stringify(data));
       }
     })
     .catch(function(err) {
-      // Non-blocking error — re-enable button and show message
+      // Non-blocking error — re-enable button, show error with retry, then auto-proceed
+      console.error('[GrantSignal] Preferences submission failed:', err.message || err);
       btn.textContent = 'Complete Setup →';
       btn.disabled = false;
       document.getElementById('apiError').classList.add('visible');
+      // Auto-proceed to success after 4 seconds (localStorage backup is sufficient)
+      setTimeout(function() {
+        var autoMsg = document.getElementById('apiErrorAutoMsg');
+        if (autoMsg) autoMsg.style.display = 'inline';
+      }, 1000);
+      setTimeout(function() {
+        showSuccessScreen();
+      }, 4000);
     });
+  }
+
+  function retrySubmit() {
+    document.getElementById('apiError').classList.remove('visible');
+    submitSurvey();
+  }
+
+  function showSuccessScreen() {
+    document.getElementById('step3').classList.remove('active');
+    document.getElementById('progressContainer').style.display = 'none';
+    document.getElementById('successScreen').classList.add('visible');
+    window.scrollTo({top: 0, behavior: 'smooth'});
   }
 </script>
 
 </body>
 </html>
+
