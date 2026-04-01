@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unsubscribe — GrantSignal</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --navy:#0f3460;
+      --blue:#1565c0;
+      --blue-light:#4fc3f7;
+      --teal:#00897b;
+      --teal-light:#4db6ac;
+      --red:#d32f2f;
+      --red-hover:#b71c1c;
+      --green:#2e7d32;
+      --border:#dde3ec;
+      --text:#1a2332;
+      --text-muted:#5a6a7a;
+    }
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+    a{color:var(--teal);text-decoration:none;}
+    a:hover{text-decoration:underline;}
+
+    /* Nav */
+    nav{background:var(--navy);padding:0 24px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.20);}
+    .nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px;}
+    .nav-logo{font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;text-decoration:none;}
+    .nav-logo .signal{color:var(--blue-light);}
+    .nav-links{display:flex;gap:24px;list-style:none;}
+    .nav-links a{color:#b0c4de;font-size:14px;font-weight:500;transition:color 0.2s;}
+    .nav-links a:hover{color:#fff;text-decoration:none;}
+    .nav-cta{background:var(--teal);color:#fff!important;padding:7px 16px;border-radius:20px;font-weight:700!important;font-size:13px!important;}
+    .nav-cta:hover{background:var(--teal-light)!important;}
+
+    /* Main */
+    main{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 20px;}
+
+    /* Card */
+    .card{background:#fff;border-radius:16px;box-shadow:0 4px 32px rgba(15,52,96,0.10);max-width:480px;width:100%;padding:48px 40px;text-align:center;}
+    .card-icon{font-size:48px;margin-bottom:16px;}
+    .card h1{font-size:26px;font-weight:800;color:var(--navy);margin-bottom:12px;line-height:1.2;}
+    .card .subtext{font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:28px;}
+
+    /* Form */
+    .form-group{margin-bottom:16px;text-align:left;}
+    label{display:block;font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+    input[type="email"], select{
+      width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;
+      font-size:15px;color:var(--text);background:#fff;transition:border-color 0.2s;outline:none;
+    }
+    input[type="email"]:focus, select:focus{border-color:var(--teal);}
+    select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a6a7a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;}
+
+    /* Error */
+    .field-error{font-size:12px;color:var(--red);margin-top:5px;display:none;}
+    .has-error input, .has-error select{border-color:var(--red);}
+    .has-error .field-error{display:block;}
+
+    /* Button */
+    .btn-unsub{
+      width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:8px;
+      font-size:16px;font-weight:700;cursor:pointer;transition:background 0.2s;margin-top:8px;
+      display:flex;align-items:center;justify-content:center;gap:8px;
+    }
+    .btn-unsub:hover:not(:disabled){background:var(--red-hover);}
+    .btn-unsub:disabled{opacity:0.7;cursor:not-allowed;}
+    .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .btn-unsub.loading .spinner{display:block;}
+    .btn-unsub.loading .btn-text{display:none;}
+
+    .keep-link{display:block;margin-top:16px;font-size:14px;color:var(--teal);cursor:pointer;}
+
+    /* Error banner */
+    .error-banner{background:#ffeaea;border:1px solid #ffbbbb;border-radius:8px;padding:12px 16px;font-size:14px;color:var(--red);margin-top:16px;display:none;text-align:left;}
+    .error-banner a{color:var(--red);text-decoration:underline;}
+
+    /* Success state */
+    .success-state{display:none;text-align:center;}
+    .success-state .check{font-size:56px;margin-bottom:16px;}
+    .success-state h2{font-size:24px;font-weight:800;color:var(--green);margin-bottom:12px;}
+    .success-state p{font-size:14px;color:var(--text-muted);line-height:1.6;}
+    .success-state .resub-link{margin-top:20px;display:block;font-size:14px;}
+
+    /* Footer */
+    footer{background:var(--navy);padding:32px 24px;color:#90a8c0;font-size:13px;}
+    .footer-inner{max-width:900px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+    .footer-brand{font-size:15px;font-weight:800;color:#fff;}
+    .footer-brand span{color:var(--blue-light);}
+    .footer-copy{font-size:12px;color:#4a6278;}
+
+    @media(max-width:600px){
+      .nav-links{display:none;}
+      .card{padding:36px 24px;}
+      .card h1{font-size:22px;}
+      .footer-inner{flex-direction:column;text-align:center;}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="https://grantsignal.news" class="nav-logo">📡 Grant<span class="signal">Signal</span></a>
+    <ul class="nav-links">
+      <li><a href="https://grantsignal.news/#how-it-works">How it works</a></li>
+      <li><a href="https://grantsignal.news/#features">Features</a></li>
+      <li><a href="https://grantsignal.news/#pricing">Pricing</a></li>
+      <li><a href="https://grantsignal.news/archive">Past Digests</a></li>
+      <li><a href="https://dereks-newsletter-be7bae.beehiiv.com/subscribe" target="_blank" class="nav-cta">Subscribe Free →</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <div class="card" id="cardMain">
+    <!-- Form state -->
+    <div id="formState">
+      <div class="card-icon">😢</div>
+      <h1>We're sorry to see you go</h1>
+      <p class="subtext">You'll be unsubscribed from all GrantSignal digests. This may take up to 24 hours to take effect.</p>
+
+      <div class="form-group" id="emailGroup">
+        <label for="emailInput">Email address</label>
+        <input type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
+        <div class="field-error" id="emailError">Please enter a valid email address.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="reasonSelect">Why are you unsubscribing? <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+        <select id="reasonSelect">
+          <option value="">— Select a reason —</option>
+          <option value="too_many_emails">Too many emails</option>
+          <option value="not_relevant">Not relevant to my organization</option>
+          <option value="found_another">Found another solution</option>
+          <option value="just_browsing">Just browsing</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <button class="btn-unsub" id="unsubBtn" onclick="handleUnsubscribe()">
+        <span class="btn-text">Unsubscribe</span>
+        <div class="spinner" id="spinner"></div>
+      </button>
+
+      <a class="keep-link" href="https://grantsignal.news">Never mind, keep me subscribed →</a>
+
+      <div class="error-banner" id="errorBanner">
+        Something went wrong. Email us at <a href="mailto:support@grantsignal.news">support@grantsignal.news</a> to unsubscribe manually.
+      </div>
+    </div>
+
+    <!-- Success state -->
+    <div class="success-state" id="successState">
+      <div class="check">✅</div>
+      <h2>You've been unsubscribed</h2>
+      <p>We've removed <strong id="successEmail"></strong> from our list.<br>You won't receive any more digests.</p>
+      <a class="resub-link" href="https://dereks-newsletter-be7bae.beehiiv.com/subscribe" target="_blank">
+        Changed your mind? Resubscribe at grantsignal.news/subscribe →
+      </a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">📡 Grant<span>Signal</span></div>
+    <div class="footer-copy">© 2026 GrantSignal. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+  // Pre-fill email from URL param
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    const email = params.get('email');
+    if (email) {
+      document.getElementById('emailInput').value = decodeURIComponent(email);
+    }
+  })();
+
+  async function handleUnsubscribe() {
+    const emailInput = document.getElementById('emailInput');
+    const emailGroup = document.getElementById('emailGroup');
+    const reasonSelect = document.getElementById('reasonSelect');
+    const unsubBtn = document.getElementById('unsubBtn');
+    const errorBanner = document.getElementById('errorBanner');
+
+    // Hide previous errors
+    emailGroup.classList.remove('has-error');
+    errorBanner.style.display = 'none';
+
+    // Validate
+    const email = emailInput.value.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      emailGroup.classList.add('has-error');
+      emailInput.focus();
+      return;
+    }
+
+    const reason = reasonSelect.value;
+
+    // Loading state
+    unsubBtn.classList.add('loading');
+    unsubBtn.disabled = true;
+
+    try {
+      const resp = await fetch('https://grantsignal.news/api/unsubscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, reason }),
+      });
+
+      const data = await resp.json();
+
+      if (resp.ok && data.success) {
+        // Show success
+        document.getElementById('successEmail').textContent = email;
+        document.getElementById('formState').style.display = 'none';
+        document.getElementById('successState').style.display = 'block';
+      } else {
+        throw new Error(data.error || 'Unknown error');
+      }
+    } catch (err) {
+      console.error('Unsubscribe error:', err);
+      errorBanner.style.display = 'block';
+      unsubBtn.classList.remove('loading');
+      unsubBtn.disabled = false;
+    }
+  }
+
+  // Allow Enter key on email field
+  document.getElementById('emailInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') handleUnsubscribe();
+  });
+</script>
+
+</body>
+</html>
