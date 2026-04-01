@@ -670,7 +670,14 @@ def build_free_html(
     total_matched: int,
     urgency_count: int = 0,
     all_paid_grants: list[dict] | None = None,
+    subscriber_email: str = "",
 ) -> str:
+    import urllib.parse as _urlparse
+    unsubscribe_url = (
+        f"https://grantsignal.news/unsubscribe?email={_urlparse.quote(subscriber_email)}"
+        if subscriber_email
+        else "https://grantsignal.news/unsubscribe"
+    )
     week_str = datetime.date.today().strftime("%B %d, %Y")
 
     # ── Feature 1: Grant of the Week ─────────────────────────────────────────
@@ -869,7 +876,7 @@ def build_free_html(
         You're receiving this because you subscribed to GrantSignal's free tier.
       </div>
       <div style="font-size:12px;margin-top:10px;">
-        <a href="{{{{unsubscribe_url}}}}" style="color:#00897b;text-decoration:underline;">
+        <a href="{unsubscribe_url}" style="color:#00897b;text-decoration:underline;">
           Unsubscribe
         </a>
       </div>
@@ -976,7 +983,13 @@ def build_timeline_section(grants: list[dict]) -> str:
 # Step 5b: Build PAID HTML email
 # ---------------------------------------------------------------------------
 
-def build_paid_html(grants: list[dict]) -> str:
+def build_paid_html(grants: list[dict], subscriber_email: str = "") -> str:
+    import urllib.parse as _urlparse
+    unsubscribe_url = (
+        f"https://grantsignal.news/unsubscribe?email={_urlparse.quote(subscriber_email)}"
+        if subscriber_email
+        else "https://grantsignal.news/unsubscribe"
+    )
     week_str  = datetime.date.today().strftime("%B %d, %Y")
     count     = len(grants)
     tip       = random.choice(GRANT_WRITING_TIPS)
@@ -1139,7 +1152,7 @@ def build_paid_html(grants: list[dict]) -> str:
         Full digest &mdash; Basic/Premium subscriber
       </div>
       <div style="font-size:12px;margin-top:10px;">
-        <a href="{{{{unsubscribe_url}}}}" style="color:#00897b;text-decoration:underline;">
+        <a href="{unsubscribe_url}" style="color:#00897b;text-decoration:underline;">
           Unsubscribe
         </a>
         &nbsp;&middot;&nbsp;
@@ -1703,14 +1716,6 @@ def main() -> None:
           f"Urgent: {urgency_count}")
 
     # ── 5. Build email HTML ──────────────────────────────────────────────────
-    free_html = build_free_html(
-        free_digest,
-        total_matched=total_matched,
-        urgency_count=urgency_count,
-        all_paid_grants=paid_digest,
-    )
-    paid_html = build_paid_html(paid_digest)
-
     # ── 6. Fetch subscribers ─────────────────────────────────────────────────
     free_subscribers = fetch_subscribers("free")
     paid_subscribers = fetch_subscribers("premium")
@@ -1721,12 +1726,45 @@ def main() -> None:
     # ── 7. Send emails ───────────────────────────────────────────────────────
     week_str = datetime.date.today().strftime("%B %d, %Y")
 
-    send_email_batch(
-        to_emails=free_subscribers,
-        subject="📡 GrantSignal | Your Top 3 Federal Grant Matches This Week",
-        html_body=free_html,
-        label="FREE",
-    )
+    # Send personalized free digest to each subscriber (with unique unsubscribe link)
+    if not free_subscribers:
+        print("[resend] No free recipients — skipping FREE digest.")
+    else:
+        print(f"[resend] Sending personalized FREE digest to {len(free_subscribers)} subscribers…")
+        free_success = 0
+        free_errors_count = 0
+        for i, subscriber_email in enumerate(free_subscribers, start=1):
+            free_html = build_free_html(
+                free_digest,
+                total_matched=total_matched,
+                urgency_count=urgency_count,
+                all_paid_grants=paid_digest,
+                subscriber_email=subscriber_email,
+            )
+            free_payload = {
+                "from":    FROM_EMAIL,
+                "to":      [subscriber_email],
+                "subject": "📡 GrantSignal | Your Top 3 Federal Grant Matches This Week",
+                "html":    free_html,
+            }
+            try:
+                free_resp = requests.post(
+                    "https://api.resend.com/emails",
+                    json=free_payload,
+                    headers={
+                        "Authorization": f"Bearer {RESEND_API_KEY}",
+                        "Content-Type":  "application/json",
+                    },
+                    timeout=20,
+                )
+                free_resp.raise_for_status()
+                free_success += 1
+            except requests.RequestException as exc:
+                free_errors_count += 1
+                print(f"[resend] WARN failed to send FREE to {subscriber_email}: {exc}")
+            if i % 10 == 0:
+                print(f"[resend] Progress: {i}/{len(free_subscribers)} sent…")
+        print(f"[resend] FREE complete — {free_success} sent, {free_errors_count} errors.")
 
     # Send personalized digest to each premium subscriber
     if not paid_subscribers:
@@ -1741,7 +1779,7 @@ def main() -> None:
             sub_prefs = all_prefs.get(email_hash, {})
             # Filter/sort grants for this subscriber
             sub_grants = filter_grants_for_subscriber(paid_digest, sub_prefs)
-            sub_html = build_paid_html(sub_grants)
+            sub_html = build_paid_html(sub_grants, subscriber_email=email)
             sub_count = len(sub_grants)
             payload = {
                 "from":    FROM_EMAIL,
