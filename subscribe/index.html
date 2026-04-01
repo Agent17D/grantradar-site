@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Subscribe free to GrantSignal — weekly federal grant alerts for nonprofits and schools. AI fit scores, urgency flags, and direct links. Free forever.">
+  <meta property="og:title" content="Subscribe Free — GrantSignal Federal Grant Alerts">
+  <meta property="og:description" content="Federal grant alerts delivered every Tuesday. Free forever. No credit card.">
+  <meta property="og:url" content="https://grantsignal.news/subscribe">
+  <meta property="og:type" content="website">
+  <title>Subscribe Free — GrantSignal Federal Grant Alerts</title>
+  <style>
+    :root {
+      --navy:#0f3460;--blue:#1565c0;--blue-light:#4fc3f7;--teal:#00897b;--teal-light:#4db6ac;
+      --bg:#ffffff;--bg-alt:#f4f7fb;--text:#1a1a2e;--text-muted:#5a6a7a;--border:#dde4ed;
+      --radius:10px;--shadow:0 4px 24px rgba(15,52,96,0.10);
+    }
+    @media(prefers-color-scheme:dark){:root{--bg:#0d1b2a;--bg-alt:#13243a;--text:#e8f0fe;--text-muted:#8aacc8;--border:#1e3a5f;--shadow:0 4px 24px rgba(0,0,0,0.40);}}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px;}
+    a{color:var(--blue);text-decoration:none;}a:hover{text-decoration:underline;}
+    .container{max-width:900px;margin:0 auto;padding:0 24px;}
+
+    /* NAV */
+    nav{background:var(--navy);padding:0 24px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.20);}
+    .nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px;}
+    .nav-logo{font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;}
+    .nav-logo .signal{color:var(--blue-light);}
+    .nav-links{display:flex;gap:24px;list-style:none;}
+    .nav-links a{color:#b0c4de;font-size:14px;font-weight:500;transition:color 0.2s;}
+    .nav-links a:hover{color:#fff;text-decoration:none;}
+    .nav-cta{background:rgba(79,195,247,0.15);color:var(--blue-light)!important;padding:7px 16px;border-radius:20px;font-weight:700!important;font-size:13px!important;border:1px solid rgba(79,195,247,0.30);}
+    .nav-cta:hover{background:rgba(79,195,247,0.25)!important;}
+
+    /* HERO */
+    .hero{background:linear-gradient(150deg,var(--navy) 0%,#163d6e 60%,#1a4f6e 100%);padding:80px 24px 72px;text-align:center;position:relative;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 0%,rgba(79,195,247,0.12) 0%,transparent 70%);pointer-events:none;}
+    .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(79,195,247,0.15);border:1px solid rgba(79,195,247,0.30);color:var(--blue-light);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:22px;}
+    .hero h1{font-size:clamp(26px,5vw,44px);font-weight:800;color:#fff;line-height:1.2;max-width:700px;margin:0 auto 20px;letter-spacing:-0.5px;}
+    .hero p{font-size:clamp(15px,2.5vw,18px);color:#b0cce4;max-width:560px;margin:0 auto 36px;line-height:1.6;}
+    .hero-proof{margin-top:32px;font-size:13px;color:rgba(176,204,228,0.80);letter-spacing:0.5px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;}
+    .hero-proof span{display:inline-flex;align-items:center;gap:5px;}
+    .hero-proof .check{color:var(--teal-light);font-weight:700;}
+
+    /* FEATURES */
+    .features-section{background:var(--bg);padding:72px 24px;}
+    .section-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:10px;}
+    .section-title{font-size:clamp(22px,4vw,32px);font-weight:800;color:var(--text);line-height:1.25;margin-bottom:14px;}
+    .section-sub{font-size:16px;color:var(--text-muted);max-width:560px;margin-bottom:44px;}
+    .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:44px;}
+    .feature{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:24px;display:flex;gap:16px;align-items:flex-start;box-shadow:var(--shadow);}
+    .feature-icon{font-size:28px;flex-shrink:0;margin-top:2px;}
+    .feature-text h3{font-size:16px;font-weight:700;margin-bottom:6px;}
+    .feature-text p{font-size:14px;color:var(--text-muted);line-height:1.6;}
+
+    /* SUBSCRIBE FORM */
+    .subscribe-section{background:var(--bg-alt);padding:80px 24px;}
+    .subscribe-card{max-width:480px;margin:0 auto;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:36px 32px;box-shadow:var(--shadow);}
+    .subscribe-card h2{font-size:20px;font-weight:800;color:var(--text);margin-bottom:6px;}
+    .subscribe-card .subtitle{font-size:14px;color:var(--text-muted);margin-bottom:24px;}
+    .form-input{width:100%;padding:13px 16px;font-size:15px;border:1.5px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);margin-bottom:12px;transition:border-color 0.2s;font-family:inherit;}
+    .form-input:focus{outline:none;border-color:var(--teal);}
+    .form-input.error{border-color:#e53935;}
+    .btn-subscribe{width:100%;padding:15px;background:var(--teal);color:#fff;font-size:16px;font-weight:700;border:none;border-radius:6px;cursor:pointer;transition:background 0.2s,transform 0.1s;box-shadow:0 4px 16px rgba(0,137,123,0.35);font-family:inherit;margin-top:4px;}
+    .btn-subscribe:hover{background:#00796b;transform:translateY(-1px);}
+    .btn-subscribe:disabled{opacity:0.7;cursor:not-allowed;transform:none;}
+    .subscribe-legal{font-size:11px;color:var(--text-muted);margin-top:14px;line-height:1.6;text-align:center;}
+    .subscribe-legal a{color:var(--text-muted);text-decoration:underline;}
+    .error-msg{background:#fff3f3;border:1px solid #ffd0d0;border-radius:6px;padding:10px 14px;font-size:13px;color:#c62828;margin-top:10px;display:none;}
+    .error-msg.visible{display:block;}
+
+    /* SUCCESS STATE */
+    .success-state{display:none;text-align:center;padding:12px 0;}
+    .success-state.visible{display:block;}
+    .success-check{width:64px;height:64px;border-radius:50%;background:#e8f5e9;border:3px solid #43a047;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;position:relative;}
+    .success-check::after{content:'';position:absolute;width:24px;height:13px;border-left:3px solid #43a047;border-bottom:3px solid #43a047;transform:rotate(-45deg) translate(1px,-3px);}
+    .success-state h3{font-size:22px;font-weight:800;color:var(--text);margin-bottom:8px;}
+    .success-state .arrival{font-size:14px;color:var(--text-muted);margin-bottom:20px;}
+    .success-state .next-step{font-size:15px;color:var(--text);margin-bottom:16px;font-weight:500;}
+    .btn-onboarding{display:inline-block;background:var(--teal);color:#fff;font-size:15px;font-weight:700;padding:13px 28px;border-radius:6px;transition:background 0.2s;box-shadow:0 4px 16px rgba(0,137,123,0.35);}
+    .btn-onboarding:hover{background:#00796b;text-decoration:none;}
+    .success-note{font-size:12px;color:var(--text-muted);margin-top:12px;}
+
+    /* SOCIAL PROOF */
+    .who-section{background:var(--bg);padding:72px 24px;}
+    .org-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-top:44px;}
+    .org-card{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:24px 20px;text-align:center;}
+    .org-icon{font-size:32px;margin-bottom:12px;}
+    .org-card h3{font-size:15px;font-weight:700;margin-bottom:8px;}
+    .org-card p{font-size:13px;color:var(--text-muted);line-height:1.5;}
+
+    /* DIGEST PREVIEW */
+    .preview-section{background:var(--bg-alt);padding:72px 24px;}
+    .digest-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;max-width:600px;margin:0 auto;box-shadow:var(--shadow);}
+    .digest-header{background:var(--navy);padding:16px 20px;display:flex;align-items:center;gap:12px;}
+    .digest-header-logo{font-size:16px;font-weight:800;color:#fff;}
+    .digest-header-logo span{color:var(--blue-light);}
+    .digest-header-meta{font-size:11px;color:#90a8c0;margin-left:auto;}
+    .digest-body{padding:20px;}
+    .digest-section-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#888;border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:14px;}
+    .digest-grant{border-left:3px solid var(--blue);padding:10px 14px;margin-bottom:12px;background:var(--bg-alt);border-radius:0 6px 6px 0;}
+    .digest-grant-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+    .digest-grant-meta{font-size:11px;color:var(--text-muted);}
+    .digest-grant-stars{color:#f4a800;}
+    .digest-urgent{background:#fff3f3;border:1px solid #ffd0d0;border-radius:6px;padding:10px 14px;font-size:12px;color:#b71c1c;margin-top:14px;}
+    .digest-footer-note{font-size:11px;color:var(--text-muted);text-align:center;padding:12px;border-top:1px solid var(--border);}
+
+    /* FINAL CTA */
+    .cta-section{background:linear-gradient(135deg,var(--navy) 0%,#163d6e 100%);padding:80px 24px;text-align:center;}
+    .cta-section .section-label{color:var(--teal-light);}
+    .cta-section h2{font-size:clamp(22px,4vw,32px);font-weight:800;color:#fff;margin-bottom:10px;}
+    .cta-section p{font-size:16px;color:#90b8d8;max-width:480px;margin:0 auto 32px;}
+    .cta-form{max-width:420px;margin:0 auto;display:flex;gap:10px;flex-wrap:wrap;}
+    .cta-form .form-input{margin-bottom:0;flex:1;min-width:200px;}
+    .cta-form .btn-cta{background:var(--teal);color:#fff;font-size:15px;font-weight:700;padding:13px 22px;border-radius:6px;border:none;cursor:pointer;white-space:nowrap;transition:background 0.2s;font-family:inherit;box-shadow:0 4px 16px rgba(0,137,123,0.35);}
+    .cta-form .btn-cta:hover{background:#00796b;}
+    .cta-note{font-size:12px;color:#607d96;margin-top:12px;}
+
+    /* FOOTER */
+    footer{background:var(--navy);padding:48px 24px 32px;color:#90a8c0;font-size:13px;}
+    .footer-inner{max-width:900px;margin:0 auto;}
+    .footer-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:32px;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:24px;}
+    .footer-brand-name{font-size:18px;font-weight:800;color:#fff;margin-bottom:6px;}
+    .footer-brand-name span{color:var(--blue-light);}
+    .footer-tagline{font-size:12px;color:#607d96;}
+    .footer-links-group h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#607d96;margin-bottom:10px;}
+    .footer-links-group ul{list-style:none;}
+    .footer-links-group li{margin-bottom:7px;}
+    .footer-links-group a{color:#90a8c0;font-size:13px;}
+    .footer-links-group a:hover{color:#fff;text-decoration:none;}
+    .footer-bottom{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;}
+    .footer-address{font-size:11px;color:#4a6278;line-height:1.7;}
+    .footer-copy{font-size:11px;color:#4a6278;}
+
+    @media(max-width:600px){
+      .nav-links{display:none;}
+      .hero{padding:60px 20px 56px;}
+      .features-section,.who-section,.preview-section,.cta-section,.subscribe-section,.who-section{padding:52px 20px;}
+      .subscribe-card{padding:24px 20px;}
+      .cta-form{flex-direction:column;}
+      .cta-form .btn-cta{width:100%;}
+      .footer-top{flex-direction:column;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="https://grantsignal.news" class="nav-logo" style="text-decoration:none;">📡 Grant<span class="signal">Signal</span></a>
+    <ul class="nav-links">
+      <li><a href="https://grantsignal.news#how-it-works">How it works</a></li>
+      <li><a href="https://grantsignal.news#features">Features</a></li>
+      <li><a href="https://grantsignal.news#pricing">Pricing</a></li>
+      <li><a href="https://grantsignal.news/archive">Past Digests</a></li>
+      <li><a href="https://grantsignal.news/onboarding" class="nav-cta">Already subscribed? →</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">📡 FREE WEEKLY DIGEST</div>
+    <h1>Federal Grant Alerts Delivered to Your Inbox Every Tuesday</h1>
+    <p>Join nonprofit leaders and grant writers who use GrantSignal to find federal funding before the deadline passes. Free forever. No credit card.</p>
+    <div class="hero-proof">
+      <span><span class="check">✓</span> Free forever</span>
+      <span><span class="check">✓</span> Unsubscribe anytime</span>
+      <span><span class="check">✓</span> No spam, ever</span>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT YOU GET -->
+<section class="features-section">
+  <div class="container">
+    <div class="section-label">What you get</div>
+    <h2 class="section-title">Everything you need to find federal funding</h2>
+    <div class="features-grid">
+      <div class="feature">
+        <div class="feature-icon">📬</div>
+        <div class="feature-text">
+          <h3>Weekly Grant Digest</h3>
+          <p>Every Tuesday at 7am, get a curated list of new federal grants matched to nonprofits and schools like yours.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⭐</div>
+        <div class="feature-text">
+          <h3>AI Fit Scores</h3>
+          <p>Each grant is scored 1–5 stars for relevance. Focus on what fits, skip what doesn't.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-text">
+          <h3>Urgency Alerts</h3>
+          <p>Grants closing within 14 days are flagged in red. Never miss a deadline again.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SUBSCRIBE FORM -->
+<section class="subscribe-section" id="subscribe">
+  <div class="container">
+    <div class="subscribe-card" id="subscribeCard">
+      <h2>Subscribe Free — No Credit Card Required</h2>
+      <p class="subtitle">Your first digest arrives this Tuesday at 7am CT.</p>
+
+      <div id="formState">
+        <input type="email" id="emailInput" class="form-input" placeholder="Email address" autocomplete="email" />
+        <input type="text" id="firstNameInput" class="form-input" placeholder="First name (optional)" autocomplete="given-name" />
+        <button class="btn-subscribe" id="subscribeBtn" onclick="handleSubscribe()">Subscribe Free →</button>
+        <div class="error-msg" id="errorMsg">Something went wrong. Try again or email <a href="mailto:support@grantsignal.news">support@grantsignal.news</a></div>
+        <p class="subscribe-legal">
+          By subscribing you agree to receive weekly emails from GrantSignal. Unsubscribe anytime.
+          <a href="/privacy">Privacy Policy</a> | <a href="/terms">Terms</a>
+        </p>
+      </div>
+
+      <div class="success-state" id="successState">
+        <div class="success-check"></div>
+        <h3>You're subscribed! 🎉</h3>
+        <p class="arrival">Your first digest arrives this Tuesday at 7am CT.</p>
+        <p class="next-step">One more step — tell us about your organization so we can personalize your digest:</p>
+        <a href="https://grantsignal.news/onboarding" class="btn-onboarding">Complete Your Profile →</a>
+        <p class="success-note">Takes 2 minutes. Helps us find the most relevant grants for you.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO IT'S FOR -->
+<section class="who-section">
+  <div class="container" style="text-align:center;">
+    <div class="section-label">WHO IT'S FOR</div>
+    <h2 class="section-title">Built for organizations that run on grants</h2>
+    <div class="org-grid">
+      <div class="org-card">
+        <div class="org-icon">🏫</div>
+        <h3>Small Nonprofits</h3>
+        <p>501(c)(3) organizations with small teams and no dedicated grant researcher</p>
+      </div>
+      <div class="org-card">
+        <div class="org-icon">🏫</div>
+        <h3>Schools &amp; Districts</h3>
+        <p>Public and private schools seeking federal education funding</p>
+      </div>
+      <div class="org-card">
+        <div class="org-icon">🏛</div>
+        <h3>Community Orgs</h3>
+        <p>CBOs, CDFIs, faith-based organizations, and social services agencies</p>
+      </div>
+      <div class="org-card">
+        <div class="org-icon">📚</div>
+        <h3>Libraries</h3>
+        <p>Public libraries seeking federal grants for programs and infrastructure</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SAMPLE DIGEST PREVIEW -->
+<section class="preview-section">
+  <div class="container" style="text-align:center;">
+    <div class="section-label">Sample digest</div>
+    <h2 class="section-title">What lands in your inbox every Tuesday</h2>
+    <p class="section-sub" style="margin:0 auto 36px;">Real grants, real deadlines, real links.</p>
+    <div class="digest-card">
+      <div class="digest-header">
+        <div class="digest-header-logo">📡 Grant<span>Signal</span></div>
+        <div class="digest-header-meta">Week of Mar 13, 2026 &nbsp;·&nbsp; 50 grants matched</div>
+      </div>
+      <div class="digest-body">
+        <div class="digest-section-label">⭐ Top Picks — Highest Fit This Week</div>
+        <div class="digest-grant">
+          <div class="digest-grant-title">Ambassador's Fund for Cultural Preservation (AFCP 2026)</div>
+          <div class="digest-grant-meta">🏛 Bureau of Educational &amp; Cultural Affairs &nbsp;·&nbsp; Closes Apr 3 &nbsp;·&nbsp; <span class="digest-grant-stars">★★★★★</span></div>
+        </div>
+        <div class="digest-grant">
+          <div class="digest-grant-title">Drug-Free Communities Support Program — New Coalitions</div>
+          <div class="digest-grant-meta">🏛 Centers for Disease Control &nbsp;·&nbsp; Closes Apr 14 &nbsp;·&nbsp; <span class="digest-grant-stars">★★★★★</span></div>
+        </div>
+        <div class="digest-urgent">⚡ <strong>2 urgent deadlines this week</strong> — closing within 14 days</div>
+      </div>
+      <div class="digest-footer-note"><a href="https://grantsignal.news/archive">View full digest archive →</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="cta-section">
+  <div class="container">
+    <div class="section-label">Free to join</div>
+    <h2>Ready to find your next grant?</h2>
+    <p>Join thousands of nonprofits and schools finding federal funding every Tuesday.</p>
+    <div class="cta-form">
+      <input type="email" id="ctaEmailInput" class="form-input" placeholder="Your email address" autocomplete="email" />
+      <button class="btn-cta" onclick="handleCtaSubscribe()">Subscribe Free →</button>
+    </div>
+    <p class="cta-note">✓ Free forever &nbsp;·&nbsp; ✓ No credit card &nbsp;·&nbsp; ✓ Unsubscribe anytime</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand-name">📡 Grant<span>Signal</span></div>
+        <div class="footer-tagline">Federal Grant Discovery for Nonprofits &amp; Schools</div>
+      </div>
+      <div class="footer-links-group">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="https://grantsignal.news#features">Features</a></li>
+          <li><a href="https://grantsignal.news#pricing">Pricing</a></li>
+          <li><a href="https://grantsignal.news/archive">Past Digests</a></li>
+          <li><a href="https://grantsignal.news/subscribe">Subscribe</a></li>
+        </ul>
+      </div>
+      <div class="footer-links-group">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="/privacy">Privacy Policy</a></li>
+          <li><a href="/terms">Terms of Service</a></li>
+          <li><a href="mailto:support@grantsignal.news">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-links-group">
+        <h4>Data</h4>
+        <ul>
+          <li><a href="https://www.grants.gov" target="_blank">Grants.gov</a></li>
+          <li><a href="https://grantsignal.news/archive">Digest Archive</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-address">
+        GrantSignal &nbsp;·&nbsp; 1401 Westbank Expressway, Suite 109, Westwego, LA 70094<br>
+        GrantSignal curates publicly available federal grant data from Grants.gov.<br>
+        Not affiliated with any U.S. federal agency. Not legal or financial advice.
+      </div>
+      <div class="footer-copy">© 2026 GrantSignal. All rights reserved.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  async function submitToBeehiiv(email, firstName) {
+    const url = 'https://api.beehiiv.com/v2/publications/pub_ccc586a8-bcb6-45fa-b2e6-3bc97866c4ea/subscriptions';
+    const body = {
+      email: email,
+      reactivate_existing: true,
+      send_welcome_email: true,
+      utm_source: 'grantsignal.news',
+      utm_medium: 'subscribe_page'
+    };
+    if (firstName) body.first_name = firstName;
+
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer FbiJL9DwllTQwm8iDdCkdvsRBGriA7qQpQUPYac3mygjjnSwMB6HGejhYUoevG47'
+        },
+        body: JSON.stringify(body)
+      });
+      return { ok: resp.status === 200 || resp.status === 201, status: resp.status };
+    } catch (err) {
+      // CORS or network error — fall back to Beehiiv hosted page
+      if (err.name === 'TypeError' || err.message.toLowerCase().includes('cors') || err.message.toLowerCase().includes('network')) {
+        return { cors: true };
+      }
+      return { ok: false, error: err };
+    }
+  }
+
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  }
+
+  async function handleSubscribe() {
+    const emailInput = document.getElementById('emailInput');
+    const firstNameInput = document.getElementById('firstNameInput');
+    const btn = document.getElementById('subscribeBtn');
+    const errorMsg = document.getElementById('errorMsg');
+
+    const email = emailInput.value.trim();
+    const firstName = firstNameInput.value.trim();
+
+    errorMsg.classList.remove('visible');
+    emailInput.classList.remove('error');
+
+    if (!email || !isValidEmail(email)) {
+      emailInput.classList.add('error');
+      emailInput.focus();
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Subscribing...';
+
+    const result = await submitToBeehiiv(email, firstName);
+
+    if (result.cors) {
+      window.location.href = 'https://dereks-newsletter-be7bae.beehiiv.com/subscribe';
+      return;
+    }
+
+    if (result.ok) {
+      document.getElementById('formState').style.display = 'none';
+      document.getElementById('successState').classList.add('visible');
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Subscribe Free →';
+      errorMsg.classList.add('visible');
+    }
+  }
+
+  async function handleCtaSubscribe() {
+    const emailInput = document.getElementById('ctaEmailInput');
+    const btn = document.querySelector('.cta-form .btn-cta');
+    const email = emailInput.value.trim();
+
+    if (!email || !isValidEmail(email)) {
+      emailInput.style.borderColor = '#e53935';
+      emailInput.focus();
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Subscribing...';
+
+    const result = await submitToBeehiiv(email, '');
+
+    if (result.cors) {
+      window.location.href = 'https://dereks-newsletter-be7bae.beehiiv.com/subscribe';
+      return;
+    }
+
+    if (result.ok) {
+      // Scroll to top and show success on main form
+      document.getElementById('emailInput').value = email;
+      document.getElementById('formState').style.display = 'none';
+      document.getElementById('successState').classList.add('visible');
+      document.getElementById('subscribe').scrollIntoView({ behavior: 'smooth' });
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Subscribe Free →';
+      emailInput.style.borderColor = '#e53935';
+    }
+  }
+
+  // Allow Enter key on email inputs
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('emailInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleSubscribe();
+    });
+    document.getElementById('firstNameInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleSubscribe();
+    });
+    document.getElementById('ctaEmailInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleCtaSubscribe();
+    });
+  });
+</script>
+</body>
+</html>
