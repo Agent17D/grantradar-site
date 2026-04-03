@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Unsubscribe — GrantSignal</title>
+  <title>Unsubscribe — GrantCommand</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;}
     :root{
@@ -27,7 +27,7 @@
     nav{background:var(--navy);padding:0 24px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.20);}
     .nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px;}
     .nav-logo{font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;text-decoration:none;}
-    .nav-logo .signal{color:var(--blue-light);}
+    .nav-logo .command{color:var(--blue-light);}
     .nav-links{display:flex;gap:24px;list-style:none;}
     .nav-links a{color:#b0c4de;font-size:14px;font-weight:500;transition:color 0.2s;}
     .nav-links a:hover{color:#fff;text-decoration:none;}
@@ -103,12 +103,12 @@
 
 <nav>
   <div class="nav-inner">
-    <a href="https://grantsignal.news" class="nav-logo">📡 Grant<span class="signal">Signal</span></a>
+    <a href="https://grantcommand.com" class="nav-logo">🎯 Grant<span class="command">Command</span></a>
     <ul class="nav-links">
-      <li><a href="https://grantsignal.news/#how-it-works">How it works</a></li>
-      <li><a href="https://grantsignal.news/#features">Features</a></li>
-      <li><a href="https://grantsignal.news/#pricing">Pricing</a></li>
-      <li><a href="https://grantsignal.news/archive">Past Digests</a></li>
+      <li><a href="https://grantcommand.com/#how-it-works">How it works</a></li>
+      <li><a href="https://grantcommand.com/#features">Features</a></li>
+      <li><a href="https://grantcommand.com/#pricing">Pricing</a></li>
+      <li><a href="https://grantcommand.com/archive">Past Digests</a></li>
       <li><a href="https://dereks-newsletter-be7bae.beehiiv.com/subscribe" target="_blank" class="nav-cta">Subscribe Free →</a></li>
     </ul>
   </div>
@@ -120,7 +120,7 @@
     <div id="formState">
       <div class="card-icon">😢</div>
       <h1>We're sorry to see you go</h1>
-      <p class="subtext">You'll be unsubscribed from all GrantSignal digests. This may take up to 24 hours to take effect.</p>
+      <p class="subtext">You'll be unsubscribed from all GrantCommand digests. This may take up to 24 hours to take effect.</p>
 
       <div class="form-group" id="emailGroup">
         <label for="emailInput">Email address</label>
@@ -145,10 +145,10 @@
         <div class="spinner" id="spinner"></div>
       </button>
 
-      <a class="keep-link" href="https://grantsignal.news">Never mind, keep me subscribed →</a>
+      <a class="keep-link" href="https://grantcommand.com">Never mind, keep me subscribed →</a>
 
       <div class="error-banner" id="errorBanner">
-        Something went wrong. Email us at <a href="mailto:support@grantsignal.news">support@grantsignal.news</a> to unsubscribe manually.
+        Something went wrong. Email us at <a href="mailto:support@grantcommand.com">support@grantcommand.com</a> to unsubscribe manually.
       </div>
     </div>
 
@@ -158,7 +158,7 @@
       <h2>You've been unsubscribed</h2>
       <p>We've removed <strong id="successEmail"></strong> from our list.<br>You won't receive any more digests.</p>
       <a class="resub-link" href="https://dereks-newsletter-be7bae.beehiiv.com/subscribe" target="_blank">
-        Changed your mind? Resubscribe at grantsignal.news/subscribe →
+        Changed your mind? Resubscribe at grantcommand.com/subscribe →
       </a>
     </div>
   </div>
@@ -166,8 +166,8 @@
 
 <footer>
   <div class="footer-inner">
-    <div class="footer-brand">📡 Grant<span>Signal</span></div>
-    <div class="footer-copy">© 2026 GrantSignal. All rights reserved.</div>
+    <div class="footer-brand">🎯 Grant<span>Signal</span></div>
+    <div class="footer-copy">© 2026 GrantCommand. All rights reserved.</div>
   </div>
 </footer>
 
@@ -207,7 +207,7 @@
     unsubBtn.disabled = true;
 
     try {
-      const resp = await fetch('https://grantsignal.news/api/unsubscribe', {
+      const resp = await fetch('https://grantcommand.com/api/unsubscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, reason }),
