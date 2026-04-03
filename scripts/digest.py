@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-GrantSignal Weekly Digest Pipeline
+GrantCommand Weekly Digest Pipeline
 -----------------------------------
 Fetches posted grants from Grants.gov, scores them for nonprofit/school
 relevance, builds FREE (top 3) and PAID (top 50) digest emails, sends them
@@ -29,7 +29,7 @@ import base64
 BEEHIIV_API_KEY = os.environ.get("BEEHIIV_API_KEY", "")
 BEEHIIV_PUB_ID  = os.environ.get("BEEHIIV_PUB_ID",  "")
 RESEND_API_KEY  = os.environ.get("RESEND_API_KEY",  "")
-FROM_EMAIL      = os.environ.get("FROM_EMAIL", "digest@grantsignal.news")
+FROM_EMAIL      = os.environ.get("FROM_EMAIL", "digest@grantcommand.com")
 # GITHUB_TOKEN is used to load subscriber preferences from the repo.
 # Set via GitHub Actions secret or GITHUB_TOKEN env var (auto-set in Actions).
 GITHUB_TOKEN    = os.environ.get("GITHUB_TOKEN", "")
@@ -674,9 +674,9 @@ def build_free_html(
 ) -> str:
     import urllib.parse as _urlparse
     unsubscribe_url = (
-        f"https://grantsignal.news/unsubscribe?email={_urlparse.quote(subscriber_email)}"
+        f"https://grantcommand.com/unsubscribe?email={_urlparse.quote(subscriber_email)}"
         if subscriber_email
-        else "https://grantsignal.news/unsubscribe"
+        else "https://grantcommand.com/unsubscribe"
     )
     week_str = datetime.date.today().strftime("%B %d, %Y")
 
@@ -821,7 +821,7 @@ def build_free_html(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>&#128225; GrantSignal | Your Top 3 Federal Grant Matches This Week</title>
+  <title>&#127919; GrantCommand | Your Top 3 Federal Grant Matches This Week</title>
 </head>
 <body style="margin:0;padding:0;background:#f4f7fb;
              font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
@@ -838,7 +838,7 @@ def build_free_html(
       <tr>
         <td style="padding:22px 28px;">
           <div style="color:#ffffff;font-size:22px;font-weight:bold;
-                      line-height:1.2;">&#128225; GrantSignal</div>
+                      line-height:1.2;">&#127919; GrantCommand</div>
           <div style="color:#4fc3f7;font-size:12px;margin-top:4px;">
             Federal Grant Intelligence
           </div>
@@ -870,10 +870,10 @@ def build_free_html(
     <div style="background:#e8eef4;padding:16px 28px;
                 border-radius:0 0 10px 10px;text-align:center;">
       <div style="font-size:13px;color:#5a6a7a;font-weight:600;">
-        &#128225; GrantSignal &middot; grantsignal.news
+        &#127919; GrantCommand &middot; grantcommand.com
       </div>
       <div style="font-size:12px;color:#8a9ab0;margin-top:6px;line-height:1.5;">
-        You're receiving this because you subscribed to GrantSignal's free tier.
+        You're receiving this because you subscribed to GrantCommand's free tier.
       </div>
       <div style="font-size:12px;margin-top:10px;">
         <a href="{unsubscribe_url}" style="color:#00897b;text-decoration:underline;">
@@ -986,9 +986,9 @@ def build_timeline_section(grants: list[dict]) -> str:
 def build_paid_html(grants: list[dict], subscriber_email: str = "") -> str:
     import urllib.parse as _urlparse
     unsubscribe_url = (
-        f"https://grantsignal.news/unsubscribe?email={_urlparse.quote(subscriber_email)}"
+        f"https://grantcommand.com/unsubscribe?email={_urlparse.quote(subscriber_email)}"
         if subscriber_email
-        else "https://grantsignal.news/unsubscribe"
+        else "https://grantcommand.com/unsubscribe"
     )
     week_str  = datetime.date.today().strftime("%B %d, %Y")
     count     = len(grants)
@@ -1097,7 +1097,7 @@ def build_paid_html(grants: list[dict], subscriber_email: str = "") -> str:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>&#128225; GrantSignal | Full Weekly Digest &mdash; {count} Grants Matched</title>
+  <title>&#127919; GrantCommand | Full Weekly Digest &mdash; {count} Grants Matched</title>
 </head>
 <body style="margin:0;padding:0;background:#f4f7fb;
              font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
@@ -1114,7 +1114,7 @@ def build_paid_html(grants: list[dict], subscriber_email: str = "") -> str:
       <tr>
         <td style="padding:22px 28px;">
           <div style="color:#ffffff;font-size:22px;font-weight:bold;
-                      line-height:1.2;">&#128225; GrantSignal</div>
+                      line-height:1.2;">&#127919; GrantCommand</div>
           <div style="color:#4fc3f7;font-size:12px;margin-top:4px;">
             Full Weekly Digest &mdash; {count} Grants Matched
           </div>
@@ -1146,7 +1146,7 @@ def build_paid_html(grants: list[dict], subscriber_email: str = "") -> str:
     <div style="background:#e8eef4;padding:16px 28px;
                 border-radius:0 0 10px 10px;text-align:center;">
       <div style="font-size:13px;color:#5a6a7a;font-weight:600;">
-        &#128225; GrantSignal &middot; grantsignal.news
+        &#127919; GrantCommand &middot; grantcommand.com
       </div>
       <div style="font-size:12px;color:#8a9ab0;margin-top:6px;line-height:1.5;">
         Full digest &mdash; Basic/Premium subscriber
@@ -1156,7 +1156,7 @@ def build_paid_html(grants: list[dict], subscriber_email: str = "") -> str:
           Unsubscribe
         </a>
         &nbsp;&middot;&nbsp;
-        <a href="https://grantsignal.news/archive"
+        <a href="https://grantcommand.com/archive"
            style="color:#00897b;text-decoration:underline;">Archive</a>
       </div>
     </div>
@@ -1370,8 +1370,8 @@ def save_archive_entry(grants: list[dict], week_date: datetime.date) -> list[str
         page_html = "<html><body>{{GRANT_CARDS}}</body></html>"
 
     # ── Substitute template placeholders ─────────────────────────────────────
-    page_title   = f"GrantSignal — {week_label}"
-    og_title     = f"GrantSignal Digest — {week_label}"
+    page_title   = f"GrantCommand — {week_label}"
+    og_title     = f"GrantCommand Digest — {week_label}"
     og_desc      = f"{grant_count} federal grant opportunities for nonprofits and schools matched this week."
     meta_desc    = og_desc
 
@@ -1440,7 +1440,7 @@ def load_subscriber_preferences() -> dict:
     Load all subscriber preference files from data/preferences/ in GitHub repo.
     Returns dict keyed by SHA-256 email hash: { hash: preferences_dict }
     """
-    url = "https://api.github.com/repos/Agent17D/grantsignal-site/contents/data/preferences"
+    url = "https://api.github.com/repos/Agent17D/grantcommand-site/contents/data/preferences"
     headers = {
         "Authorization": f"token {GITHUB_TOKEN}",
         "Accept": "application/vnd.github.v3+json",
@@ -1665,7 +1665,7 @@ def fetch_federal_register_grants(existing_grants: list[dict] | None = None) -> 
 
 def main() -> None:
     print("=" * 60)
-    print("  GrantSignal Weekly Digest Pipeline")
+    print("  GrantCommand Weekly Digest Pipeline")
     print(f"  {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}")
     print("=" * 60)
 
@@ -1744,7 +1744,7 @@ def main() -> None:
             free_payload = {
                 "from":    FROM_EMAIL,
                 "to":      [subscriber_email],
-                "subject": "📡 GrantSignal | Your Top 3 Federal Grant Matches This Week",
+                "subject": "🎯 GrantCommand | Your Top 3 Federal Grant Matches This Week",
                 "html":    free_html,
             }
             try:
@@ -1784,7 +1784,7 @@ def main() -> None:
             payload = {
                 "from":    FROM_EMAIL,
                 "to":      [email],
-                "subject": f"📡 GrantSignal | {sub_count} Federal Grant Matches This Week",
+                "subject": f"🎯 GrantCommand | {sub_count} Federal Grant Matches This Week",
                 "html":    sub_html,
             }
             try:
